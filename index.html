@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智网守护 - 基于6G内生智能的智能电网仿真系统</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-pri: #070b14;
+  --bg-sec: #0f1524;
+  --bg-card: #151c2e;
+  --bg-panel: #1a2338;
+  --border: #26334d;
+  --txt: #dce4f5;
+  --txt-dim: #7d8ba8;
+  --cyan: #06b6d4;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --purple: #8b5cf6;
+  --pink: #ec4899;
+}
+body {
+  font-family: 'Microsoft YaHei', -apple-system, sans-serif;
+  background: var(--bg-pri);
+  color: var(--txt);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== 顶部 ===== */
+.top-bar {
+  background: linear-gradient(90deg, #0a1520, #111e35, #0a1520);
+  border-bottom: 2px solid var(--cyan);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.top-bar h1 {
+  font-size: 20px;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.top-bar .sub { font-size: 11px; color: var(--txt-dim); margin-top: 2px; }
+.top-right { display: flex; gap: 18px; align-items: center; font-size: 12px; }
+.status-pill { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 1.5s infinite; }
+.dot.g { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.dot.c { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.dot.y { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+.dot.r { background: var(--red); box-shadow: 0 0 8px var(--red); }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+.sigbar { display: flex; gap: 2px; height: 16px; align-items: flex-end; }
+.sigbar span { width: 3px; background: var(--cyan); animation: sig 1.2s infinite ease-in-out; }
+.sigbar span:nth-child(1){ animation-delay:0s; height:30%; }
+.sigbar span:nth-child(2){ animation-delay:.15s; height:55%; }
+.sigbar span:nth-child(3){ animation-delay:.3s; height:80%; }
+.sigbar span:nth-child(4){ animation-delay:.45s; height:100%; }
+@keyframes sig { 0%,100%{transform:scaleY(.5)} 50%{transform:scaleY(1)} }
+
+/* ===== 指标卡 ===== */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--bg-sec);
+  border-bottom: 1px solid var(--border);
+}
+.metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--cyan);
+}
+.metric .l { font-size: 10px; color: var(--txt-dim); }
+.metric .v { font-size: 22px; font-weight: 700; color: var(--cyan); font-family: Consolas, monospace; }
+.metric .u { font-size: 11px; color: var(--txt-dim); margin-left: 3px; }
+.metric .t { font-size: 10px; margin-top: 2px; }
+.t-u { color: var(--green); } .t-d { color: var(--red); } .t-s { color: var(--txt-dim); }
+
+/* ===== 主网格 ===== */
+.main {
+  display: grid;
+  grid-template-columns: 1.05fr 1.3fr 1.05fr;
+  gap: 14px;
+  padding: 14px 20px;
+}
+.panel {
+  background: var(--bg-sec);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.p-head {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(90deg, rgba(6,182,212,.08), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.p-head h3 { font-size: 13px; color: var(--cyan); font-weight: 600; }
+.p-body { padding: 12px; overflow: auto; flex: 1; }
+
+/* ===== 开关面板 ===== */
+.switch-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.switch-panel h4 { font-size: 12px; color: var(--cyan); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--bg-sec);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  transition: all .3s;
+}
+.switch-row.on { border-color: var(--green); background: rgba(16,185,129,.08); }
+.switch-row.off { opacity: .5; border-color: var(--border); }
+.switch-row .s-name { font-size: 12px; color: var(--txt); display: flex; align-items: center; gap: 8px; }
+.switch-row .s-desc { font-size: 10px; color: var(--txt-dim); margin-top: 2px; }
+.switch-row .s-icon { font-size: 16px; }
+
+/* 开关 */
+.switch { position: relative; width: 46px; height: 22px; cursor: pointer; flex-shrink: 0; }
+.switch input { display: none; }
+.slider {
+  position: absolute; inset: 0;
+  background: #333; border-radius: 22px;
+  transition: .3s;
+}
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 2px; top: 2px;
+  background: #fff; border-radius: 50%;
+  transition: .3s;
+}
+.switch input:checked + .slider { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+.switch input:checked + .slider::before { transform: translateX(24px); }
+
+/* ===== 拓扑 ===== */
+.topo-svg { width: 100%; height: 380px; }
+.node-title { font-size: 12px; fill: var(--txt); text-anchor: middle; font-weight: 600; }
+.node-sub { font-size: 10px; fill: var(--txt-dim); text-anchor: middle; }
+.flow-arrow { animation: flow 1s linear infinite; }
+@keyframes flow { 0% { stroke-dashoffset:20 } 100% { stroke-dashoffset:0 } }
+.glow { animation: glow 2s infinite; }
+@keyframes glow {
+  0%,100% { filter: drop-shadow(0 0 3px currentColor); }
+  50% { filter: drop-shadow(0 0 10px currentColor); }
+}
+.ai-badge { fill: var(--purple); font-size: 8px; text-anchor: middle; }
+
+/* ===== 场景按钮 ===== */
+.scene-btn {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--txt);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 6px;
+  transition: all .25s;
+}
+.scene-btn:hover { border-color: var(--yellow); background: rgba(245,158,11,.08); }
+.scene-btn .sd { font-size: 10px; color: var(--txt-dim); margin-top: 2px; }
+
+/* ===== 图表 ===== */
+.chart-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.chart-wrap .ct { font-size: 12px; color: var(--txt-dim); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.chart-wrap canvas { width: 100%; height: 170px; display: block; }
+
+/* Tab */
+.tabbar { display: flex; gap: 4px; margin-bottom: 8px; }
+.tab {
+  padding: 5px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px 4px 0 0;
+  font-size: 11px;
+  color: var(--txt-dim);
+  cursor: pointer;
+}
+.tab.on { background: var(--cyan); color: #000; border-color: var(--cyan); }
+.tabbody { display: none; }
+.tabbody.on { display: block; }
+
+/* ===== AI 决策 ===== */
+.ai-dec {
+  background: linear-gradient(135deg, rgba(139,92,246,.12), rgba(6,182,212,.12));
+  border: 1px solid var(--purple);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.ai-dec h5 { color: var(--purple); font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.ai-dec .ai-body { font-size: 11px; line-height: 1.7; color: var(--txt); }
+.ai-dec .ai-action { margin-top: 8px; padding: 8px; background: rgba(6,182,212,.15); border-left: 3px solid var(--cyan); font-size: 11px; color: var(--cyan); }
+.ai-dec .conf { font-size: 10px; color: var(--txt-dim); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+.ai-dec .confbar { flex: 1; height: 5px; background: var(--bg-pri); border-radius: 3px; overflow: hidden; }
+.ai-dec .confbar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan)); transition: width .5s; }
+
+/* ===== Agent 列表 ===== */
+.agent { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; }
+.agent .av { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.agent .info { flex: 1; min-width: 0; }
+.agent .nm { font-size: 11px; font-weight: 600; }
+.agent .st { font-size: 10px; color: var(--txt-dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agent.sun .av { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.agent.bat .av { background: linear-gradient(135deg, #10b981, #059669); }
+.agent.ld .av { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.agent.gr .av { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.agent.sec .av { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.agent.nw .av { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.agent.collab { outline: 2px solid var(--yellow); animation: pulse 1s infinite; }
+
+/* ===== 日志 ===== */
+.alog { max-height: 260px; overflow-y: auto; }
+.alog-item { padding: 6px 9px; border-radius: 5px; margin-bottom: 5px; font-size: 11px; border-left: 3px solid; animation: slideIn .3s ease-out; }
+@keyframes slideIn { from{opacity:0; transform:translateX(-8px)} to{opacity:1; transform:translateX(0)} }
+.alog-item.i { border-color: var(--cyan); background: rgba(6,182,212,.1); }
+.alog-item.w { border-color: var(--yellow); background: rgba(245,158,11,.1); }
+.alog-item.c { border-color: var(--red); background: rgba(239,68,68,.1); animation: blink .5s infinite alternate; }
+@keyframes blink { from{border-color:var(--red)} to{border-color:#ff6b6b} }
+.alog-item.s { border-color: var(--green); background: rgba(16,185,129,.1); }
+.alog-item .tm { color: var(--txt-dim); font-family: Consolas, monospace; font-size: 10px; }
+.alog-item .mg { margin-top: 2px; }
+
+/* ===== 对比图例 ===== */
+.legend { display: flex; gap: 14px; margin-bottom: 6px; font-size: 11px; }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend .line-box { width: 24px; height: 3px; border-radius: 2px; }
+
+/* ===== 按钮 ===== */
+.btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--txt); padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; transition: .25s; }
+.btn:hover { border-color: var(--cyan); }
+.btn.pri { background: linear-gradient(135deg, var(--cyan), var(--blue)); border: none; }
+.btn.dg { background: var(--red); border: none; color: #fff; }
+
+/* ===== 断电闪光 ===== */
+.power-loss {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: radial-gradient(circle at center, transparent 30%, rgba(239,68,68,.25) 100%);
+  animation: ploss .4s ease-out;
+}
+@keyframes ploss { 0%{opacity:1} 100%{opacity:0} }
+
+/* ===== 滚动条 ===== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-card); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* ===== 断电保护横幅 ===== */
+.banner {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  background: var(--red); color: #fff; padding: 10px 24px; border-radius: 8px;
+  font-size: 16px; font-weight: 700; z-index: 9998;
+  animation: slideDown .3s ease-out, blink .8s infinite alternate;
+  box-shadow: 0 8px 30px rgba(239,68,68,.5);
+  display: flex; align-items: center; gap: 10px;
+}
+.banner.success { background: linear-gradient(90deg, var(--green), var(--cyan)); animation: slideDown .3s ease-out, glow .6s ease-in-out infinite alternate; box-shadow: 0 8px 30px rgba(16,185,129,.6); }
+.banner .banner-icon { font-size: 22px; }
+@keyframes glow { from { box-shadow: 0 8px 30px rgba(16,185,129,.6); } to { box-shadow: 0 8px 40px rgba(6,182,212,.8); } }
+@keyframes slideDown { from { opacity:0; top:-50px } to { opacity:1; top:60px } }
+
+@media (max-width:1500px) {
+  .main { grid-template-columns: 1fr 1fr 1fr; }
+  .metrics { grid-template-columns: repeat(4,1fr); }
+}
+
+/* ===== 密码验证弹窗 ===== */
+.pwd-mask {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: none;
+  align-items: center; justify-content: center;
+  animation: fadeIn .2s ease-out;
+}
+.pwd-mask.on { display: flex; }
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+.pwd-box {
+  background: linear-gradient(135deg, #0f1524, #1a2338);
+  border: 2px solid var(--cyan);
+  border-radius: 14px;
+  padding: 30px 34px;
+  width: 380px;
+  box-shadow: 0 20px 60px rgba(6,182,212,.3);
+  animation: popUp .25s ease-out;
+}
+@keyframes popUp { from { transform: scale(.8); opacity:0 } to { transform: scale(1); opacity:1 } }
+.pwd-box h4 { color: var(--cyan); font-size: 17px; margin-bottom: 6px; text-align: center; }
+.pwd-box .sub { color: var(--txt-dim); font-size: 12px; text-align: center; margin-bottom: 20px; }
+.pwd-box .icon-row { text-align: center; font-size: 36px; margin-bottom: 10px; }
+.pwd-box input {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--bg-pri);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--txt);
+  font-size: 18px;
+  letter-spacing: 8px;
+  text-align: center;
+  font-family: 'Consolas', monospace;
+  outline: none;
+  transition: .2s;
+}
+.pwd-box input:focus { border-color: var(--cyan); }
+.pwd-box .err {
+  color: var(--red); font-size: 11px;
+  margin-top: 8px; text-align: center;
+  min-height: 16px;
+}
+.pwd-box .btns {
+  display: flex; gap: 10px; margin-top: 18px;
+}
+.pwd-box .btns button {
+  flex: 1; padding: 11px;
+  border: none; border-radius: 7px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: .2s;
+}
+.pwd-box .btns .cancel { background: var(--bg-card); color: var(--txt); border: 1px solid var(--border); }
+.pwd-box .btns .ok { background: linear-gradient(135deg, var(--cyan), var(--blue)); color: #fff; }
+.pwd-box .btns button:hover { transform: translateY(-1px); opacity: .9; }
+
+/* ===== 6G核心能力带 ===== */
+.sixg-band {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr 1fr 1.5fr 1fr 1fr;
+  gap: 10px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(6,182,212,.07), rgba(139,92,246,.07), rgba(6,182,212,.07));
+  border-bottom: 1px solid var(--border);
+}
+.sixg-cell {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  position: relative;
+  overflow: hidden;
+  transition: .3s;
+}
+.sixg-cell::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background: linear-gradient(180deg, var(--cyan), var(--purple));
+}
+.sixg-cell .sl { font-size:10px; color:var(--txt-dim); display:flex; justify-content:space-between; }
+.sixg-cell .sl .cnt { font-weight:700; }
+.sixg-cell .sv { font-size:16px; font-weight:700; color:var(--cyan); font-family:Consolas,monospace; margin-top:3px; }
+.sixg-cell .sv small { font-size:10px; color:var(--txt-dim); font-weight:400; }
+.sixg-cell .ss { font-size:10px; color:var(--txt-dim); margin-top:3px; }
+.sixg-cell.warn { border-color:var(--red); animation: warnBlink 1s infinite alternate; }
+.sixg-cell.warn .sv { color:var(--red); }
+@keyframes warnBlink { from{box-shadow:none} to{box-shadow:0 0 12px rgba(239,68,68,.4)} }
+/* 标题下方6G特性徽章 */
+.b6g { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+.b6g span {
+  font-size:10px; padding:2px 9px; border-radius:10px;
+  background: rgba(6,182,212,.12); border:1px solid rgba(6,182,212,.4);
+  color:var(--cyan); letter-spacing:1px;
+}
+.b6g span.pu { background:rgba(139,92,246,.12); border-color:rgba(139,92,246,.4); color:var(--purple); }
+/* 网络切片条 */
+.slice-bar { display:flex; height:15px; border-radius:4px; overflow:hidden; margin-top:5px; border:1px solid var(--border); }
+.slice-bar .seg {
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; color:#fff; transition: width .6s, opacity .6s;
+  min-width:0; white-space:nowrap; overflow:hidden; font-weight:600;
+}
+/* 6G链路数据流动画 */
+.sixg-flow { stroke-dasharray: 7 5; animation: dashflow .9s linear infinite; }
+.sixg-flow.slow { animation-duration: 4s; stroke:#4b5563; }
+@keyframes dashflow { to { stroke-dashoffset: -12; } }
+
+/* ===== 维修副画面 ===== */
+.repair-mask { position:fixed; inset:0; background:rgba(4,8,16,.93); z-index:9000; display:none; align-items:center; justify-content:center; animation:fadeIn .25s; }
+.repair-mask.on { display:flex; }
+.repair-view { width:min(1100px,95vw); max-height:96vh; overflow-y:auto; background:var(--bg-sec); border:2px solid var(--cyan); border-radius:14px; box-shadow:0 0 60px rgba(6,182,212,.3); }
+.repair-head { display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:linear-gradient(90deg,rgba(6,182,212,.12),rgba(139,92,246,.12)); border-bottom:1px solid var(--border); }
+.repair-head h3 { font-size:15px; color:var(--cyan); }
+.repair-status { display:flex; gap:10px; align-items:center; padding:10px 18px 2px; font-size:12px; flex-wrap:wrap; }
+.repair-status .pill { padding:3px 12px; border-radius:12px; font-size:11px; border:1px solid var(--border); background:var(--bg-card); }
+.repair-log { height:120px; overflow-y:auto; margin:8px 18px 14px; font-size:11px; }
+.repair-log div { padding:4px 9px; border-left:2px solid var(--cyan); margin-bottom:4px; background:rgba(6,182,212,.06); border-radius:3px; animation:slideIn .3s ease-out; }
+/* 现场SVG动画 */
+.rv-rotor { animation: rotorSpin .13s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes rotorSpin { to { transform: rotate(360deg); } }
+.rv-smoke { animation: smokeUp 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+.rv-smoke.s2 { animation-delay: 1.2s; }
+@keyframes smokeUp { 0%{ transform:translateY(0) scale(.6); opacity:.65 } 100%{ transform:translateY(-48px) scale(1.7); opacity:0 } }
+.rv-spark { animation: sparkFall .8s linear infinite; }
+.rv-spark.k2{animation-delay:.3s}.rv-spark.k3{animation-delay:.55s}
+@keyframes sparkFall { 0%{ transform:translateY(0); opacity:1 } 100%{ transform:translateY(55px); opacity:0 } }
+.rv-warn { animation: blinkW .5s infinite alternate; }
+@keyframes blinkW { from{opacity:1} to{opacity:.15} }
+.rv-fault-glow { animation: faultGlow .8s infinite alternate; }
+@keyframes faultGlow { from{ filter:drop-shadow(0 0 2px rgba(239,68,68,.4)) } to{ filter:drop-shadow(0 0 12px rgba(239,68,68,.95)) } }
+#rDev.fixed .rv-smoke, #rDev.fixed .rv-spark { display:none; }
+#rBot { transition: transform 3.6s ease-in-out; }
+#rDrone { transition: transform 2.2s ease-in-out; }
+#rBot .armU { transition: transform .8s ease; transform-origin: 14px 261px; }
+#rBot.working .armU { transform: rotate(-55deg); }
+#rBot .armF { transition: transform .8s .4s ease; transform-origin: 36px 255px; }
+#rBot.working .armF { transform: rotate(-70deg); }
+.rv-weld { animation: weld .22s infinite alternate; }
+@keyframes weld { from{opacity:.15} to{opacity:1} }
+</style>
+</head>
+<body>
+
+<!-- 断电闪光层 -->
+<div id="flashLayer"></div>
+<div id="bannerLayer"></div>
+
+<!-- ====== 密码验证弹窗 ====== -->
+<div class="pwd-mask" id="pwdMask">
+  <div class="pwd-box">
+    <div class="icon-row">🔐</div>
+    <h4>管理员身份验证</h4>
+    <div class="sub" id="pwdTip">切换系统开关需要验证密码</div>
+    <input type="password" id="pwdInput" placeholder="请输入4位密码" maxlength="10" autocomplete="off">
+    <div class="err" id="pwdErr"></div>
+    <div class="btns">
+      <button class="cancel" onclick="closePwd()">取消</button>
+      <button class="ok" onclick="submitPwd()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 维修副画面（机器人/无人机抢修现场） ====== -->
+<div class="repair-mask" id="repairMask">
+  <div class="repair-view">
+    <div class="repair-head">
+      <h3>🤖🚁 智能运维副画面 — 机器人/无人机协同抢修现场</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn pri" id="btnDispatch" onclick="dispatchRepair()">🚀 派遣抢修</button>
+        <button class="btn" onclick="closeRepair()">✕ 关闭副画面</button>
+      </div>
+    </div>
+    <div class="repair-status">
+      <span class="pill" id="rpFaultPill" style="color:var(--green);border-color:var(--green)">🟢 故障：无</span>
+      <span class="pill" id="rpPhasePill">阶段：待命</span>
+      <span style="color:var(--txt-dim);font-size:11px">发生故障后点击"派遣抢修"：无人机先期侦察 → 机器人到场维修 → 修完自动恢复主画面稳态</span>
+    </div>
+    <div style="padding:8px 18px 0">
+      <svg id="repairSvg" viewBox="0 0 900 380" style="width:100%;display:block;border-radius:8px">
+        <defs>
+          <linearGradient id="rvSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0a1526"/><stop offset="1" stop-color="#12203a"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="380" fill="url(#rvSky)"/>
+        <circle cx="80" cy="40" r="1.2" fill="#64748b"/><circle cx="300" cy="60" r="1" fill="#64748b"/>
+        <circle cx="520" cy="35" r="1.2" fill="#64748b"/><circle cx="760" cy="55" r="1" fill="#64748b"/>
+        <circle cx="840" cy="90" r="1.2" fill="#64748b"/>
+        <!-- 地面 -->
+        <rect y="330" width="900" height="50" fill="#0d1424"/>
+        <line x1="0" y1="330" x2="900" y2="330" stroke="#26334d" stroke-width="2"/>
+        <!-- 机器人车库 -->
+        <rect x="30" y="268" width="130" height="62" fill="#0f1830" stroke="#26334d"/>
+        <text x="95" y="356" text-anchor="middle" font-size="11" fill="#7d8ba8">🤖 机器人车库</text>
+        <!-- 无人机停机坪 -->
+        <circle cx="215" cy="316" r="24" fill="none" stroke="#26334d" stroke-width="2"/>
+        <text x="215" y="322" text-anchor="middle" font-size="14" fill="#7d8ba8">H</text>
+        <text x="215" y="356" text-anchor="middle" font-size="11" fill="#7d8ba8">无人机停机坪</text>
+        <!-- 故障设备：园区变压器柜 -->
+        <g id="rDev">
+          <rect id="devBody" x="600" y="200" width="112" height="130" rx="6" fill="#0f1830" stroke="#ef4444" stroke-width="2" class="rv-fault-glow"/>
+          <rect x="612" y="214" width="88" height="34" rx="3" fill="#0a1020" stroke="#26334d"/>
+          <text x="656" y="239" text-anchor="middle" font-size="17" class="rv-warn">⚡</text>
+          <text x="656" y="272" text-anchor="middle" font-size="11" fill="#dce4f5">园区变压器柜</text>
+          <text x="656" y="290" text-anchor="middle" font-size="10" id="devTag" fill="#ef4444">● 故障</text>
+          <circle class="rv-smoke" cx="630" cy="196" r="7" fill="#94a3b8"/>
+          <circle class="rv-smoke s2" cx="676" cy="192" r="9" fill="#94a3b8"/>
+          <circle class="rv-spark" cx="622" cy="252" r="2.5" fill="#fbbf24"/>
+          <circle class="rv-spark k2" cx="654" cy="242" r="2" fill="#f59e0b"/>
+          <circle class="rv-spark k3" cx="690" cy="258" r="2.5" fill="#fde047"/>
+        </g>
+        <text x="656" y="356" text-anchor="middle" font-size="11" fill="#7d8ba8">故障设备 F-01</text>
+        <!-- 抢修机器人 RX-01 -->
+        <g id="rBot" style="transform:translate(95px,0)">
+          <rect x="-26" y="296" width="52" height="14" rx="7" fill="#1e293b" stroke="#3b82f6"/>
+          <circle cx="-14" cy="303" r="4" fill="#0a1020" stroke="#64748b"/>
+          <circle cx="0" cy="303" r="4" fill="#0a1020" stroke="#64748b"/>
+          <circle cx="14" cy="303" r="4" fill="#0a1020" stroke="#64748b"/>
+          <rect x="-20" y="266" width="40" height="32" rx="5" fill="#0f1830" stroke="#3b82f6" stroke-width="1.5"/>
+          <rect x="-12" y="274" width="17" height="9" rx="2" fill="#06b6d4" opacity=".85"/>
+          <circle cx="13" cy="272" r="3" fill="#f59e0b" class="rv-warn"/>
+          <g class="armU">
+            <rect x="14" y="258" width="26" height="7" rx="3" fill="#64748b"/>
+            <g class="armF">
+              <rect x="36" y="252" width="22" height="6" rx="3" fill="#94a3b8"/>
+              <circle id="weldTip" cx="58" cy="255" r="4" fill="#fde047" class="rv-weld" style="display:none"/>
+            </g>
+          </g>
+          <text x="0" y="326" text-anchor="middle" font-size="10" fill="#7d8ba8">抢修机器人 RX-01</text>
+        </g>
+        <!-- 巡检无人机 UAV-02 -->
+        <g id="rDrone" style="transform:translate(215px,248px)">
+          <line x1="-14" y1="-8" x2="14" y2="8" stroke="#64748b" stroke-width="2"/>
+          <line x1="14" y1="-8" x2="-14" y2="8" stroke="#64748b" stroke-width="2"/>
+          <circle cx="-16" cy="-10" r="4" fill="none" stroke="#475569"/>
+          <circle cx="16" cy="-10" r="4" fill="none" stroke="#475569"/>
+          <circle cx="-16" cy="10" r="4" fill="none" stroke="#475569"/>
+          <circle cx="16" cy="10" r="4" fill="none" stroke="#475569"/>
+          <g class="rv-rotor"><ellipse cx="-16" cy="-10" rx="9" ry="1.8" fill="#22d3ee" opacity=".8"/></g>
+          <g class="rv-rotor"><ellipse cx="16" cy="-10" rx="9" ry="1.8" fill="#22d3ee" opacity=".8"/></g>
+          <g class="rv-rotor"><ellipse cx="-16" cy="10" rx="9" ry="1.8" fill="#22d3ee" opacity=".8"/></g>
+          <g class="rv-rotor"><ellipse cx="16" cy="10" rx="9" ry="1.8" fill="#22d3ee" opacity=".8"/></g>
+          <ellipse cx="0" cy="0" rx="10" ry="7" fill="#0f1830" stroke="#22d3ee" stroke-width="1.5"/>
+          <circle cx="0" cy="10" r="3" fill="#22d3ee"/>
+          <circle cx="0" cy="-11" r="2" fill="#10b981" class="rv-warn"/>
+          <text x="0" y="30" text-anchor="middle" font-size="10" fill="#7d8ba8">巡检无人机 UAV-02</text>
+        </g>
+      </svg>
+    </div>
+    <div style="margin:8px 18px 4px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt-dim)">
+        <span id="rpStageTxt">等待派遣…</span><span id="rpPct" style="font-family:Consolas">0%</span>
+      </div>
+      <div style="height:9px;background:var(--bg-pri);border-radius:5px;overflow:hidden;border:1px solid var(--border);margin-top:4px">
+        <div id="rpBar" style="height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s"></div>
+      </div>
+    </div>
+    <div class="repair-log" id="repairLog"></div>
+  </div>
+</div>
+
+<!-- ===== 顶部 ===== -->
+<div class="top-bar">
+  <div>
+    <h1>⚡ 智网守护 · 基于6G内生智能的智能电网决策系统</h1>
+    <div class="sub">Intelligent Grid Guardian — 面向园区微电网的内生AI自主运维平台</div>
+    <div class="b6g">
+      <span>📡 通感一体 ISAC</span>
+      <span class="pu">🧠 内生智能 AI-Native</span>
+      <span>🛰️ 空天地一体 NTN</span>
+      <span class="pu">✂️ 网络切片 Slicing</span>
+      <span>⚡ 超低时延 URLLC 0.8ms</span>
+      <span class="pu">🧬 数字孪生 Twin</span>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="status-pill"><div class="dot g"></div> 6G网络 99.2%</div>
+    <div class="status-pill"><div class="dot c"></div> <span id="aiMainStatus">内生智能：ON</span></div>
+    <div class="status-pill"><div class="dot g" id="sysDot"></div><span id="sysTxt">系统正常</span></div>
+    <div class="status-pill">
+      <div class="sigbar"><span></span><span></span><span></span><span></span></div>
+      <span>6G信号</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 指标 ===== -->
+<div class="metrics">
+  <div class="metric"><div class="l">⚡ 功率平衡</div><div><span class="v" id="mBal">1.2</span><span class="u">kW</span></div><div class="t t-s" id="tBal">◆ 平衡</div></div>
+  <div class="metric"><div class="l">🔋 储能SOC</div><div><span class="v" id="mSOC">82</span><span class="u">%</span></div><div class="t t-u" id="tSOC">▲ 充电中</div></div>
+  <div class="metric"><div class="l">🔌 母线电压</div><div><span class="v" id="mV">220.5</span><span class="u">V</span></div><div class="t t-s" id="tV">◆ 正常</div></div>
+  <div class="metric"><div class="l">📶 6G时延</div><div><span class="v" id="mLat">0.8</span><span class="u">ms</span></div><div class="t t-u" id="tLat">◆ URLLC 确定性低时延</div></div>
+  <div class="metric"><div class="l">🎯 故障预测</div><div><span class="v" id="mAcc">94.7</span><span class="u">%</span></div><div class="t t-u">▲ 持续学习</div></div>
+  <div class="metric"><div class="l">🛡️ 安全状态</div><div><span class="v" id="mSec">正常</span></div><div class="t t-s">◆ 动态防护</div></div>
+  <div class="metric"><div class="l">🤝 AI Agent</div><div><span class="v" id="mAgt">6</span><span class="u">个</span></div><div class="t t-u">▲ 协同运行</div></div>
+</div>
+
+<!-- ===== 6G核心能力带 ===== -->
+<div class="sixg-band">
+  <div class="sixg-cell" id="cellSlice">
+    <div class="sl"><span>✂️ 6G网络切片 · 硬隔离</span><span class="cnt" id="sliceCnt" style="color:var(--green)">4/4 SLA达标</span></div>
+    <div class="slice-bar">
+      <div class="seg" id="seg1" style="background:linear-gradient(90deg,#0891b2,#06b6d4);width:38%">URLLC 电力控制</div>
+      <div class="seg" id="seg2" style="background:linear-gradient(90deg,#7c3aed,#8b5cf6);width:24%">eMBB 视频</div>
+      <div class="seg" id="seg3" style="background:linear-gradient(90deg,#059669,#10b981);width:22%">mMTC 采集</div>
+      <div class="seg" id="seg4" style="background:linear-gradient(90deg,#d97706,#f59e0b);width:16%">安全备份</div>
+    </div>
+    <div class="ss" id="sliceSub">URLLC切片 0.8ms · 切片间隔离度 99.99%</div>
+  </div>
+  <div class="sixg-cell">
+    <div class="sl"><span>📡 通感一体 ISAC</span></div>
+    <div class="sv" id="isacV">6/6 <small>节点感知</small></div>
+    <div class="ss" id="isacSub">阻抗扫描 200μs · 精度99.2%</div>
+  </div>
+  <div class="sixg-cell">
+    <div class="sl"><span>📶 峰值吞吐</span></div>
+    <div class="sv" id="thpV">1.2 <small>Gbps</small></div>
+    <div class="ss" id="thpSub">Sub-6GHz + 毫米波</div>
+  </div>
+  <div class="sixg-cell" id="cellNTN">
+    <div class="sl"><span>🛰️ 空天地一体 NTN</span><span class="cnt" id="ntnSync" style="color:var(--green)">同步 99.99%</span></div>
+    <div class="sv" id="ntnV" style="font-size:13px">✦卫星锁定 · 基站 · 地面 三层组网</div>
+    <div class="ss" id="ntnSub">卫星备份链路 · 时钟同步 ±100ns</div>
+  </div>
+  <div class="sixg-cell">
+    <div class="sl"><span>🔗 海量终端 mMTC</span></div>
+    <div class="sv" id="mtcV">128 <small>个在线</small></div>
+    <div class="ss">连接密度 10⁶/km²</div>
+  </div>
+  <div class="sixg-cell">
+    <div class="sl"><span>🧬 数字孪生</span></div>
+    <div class="sv" id="dtV">99.9 <small>%同步</small></div>
+    <div class="ss" id="dtSub">推演时延 5ms · 潮流预测</div>
+  </div>
+</div>
+
+<!-- ===== 主区 ===== -->
+<div class="main">
+
+  <!-- ========== 左：内生智能开关 + 拓扑 ========== -->
+  <div class="panel">
+    <div class="p-head">
+      <h3>🧠 内生智能开关矩阵</h3>
+      <span style="font-size:10px;color:var(--txt-dim)">点击切换对比有无AI</span>
+    </div>
+    <div class="p-body" style="padding:12px">
+      
+      <!-- 总开关 -->
+      <div class="switch-panel" style="background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(6,182,212,.1)); border-color:var(--green)">
+        <h4 style="color:var(--green)">⚡ 内生智能 总控</h4>
+        <div class="switch-row on" id="rowAI">
+          <div>
+            <div class="s-name"><span class="s-icon">🧠</span><b>AI内生智能主引擎</b> <span id="aiMainBadge" style="color:var(--green);font-size:10px">● 已激活</span></div>
+            <div class="s-desc">核心决策引擎：故障检测+负荷预测+自主调度+自愈保护</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="aiMainSwitch" checked onchange="askPwd('main', this)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 子系统开关 -->
+      <div class="switch-panel">
+        <h4>🔧 子智能模块（6G通感算智）</h4>
+        
+        <div class="switch-row on" id="rowFD">
+          <div>
+            <div class="s-name"><span class="s-icon">🔍</span>故障检测AI</div>
+            <div class="s-desc">边缘节点实时阻抗监测 · 毫秒级故障定位</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked onchange="askPwd('fd', this)"><span class="slider"></span></label>
+        </div>
+        
+        <div class="switch-row on" id="rowLP">
+          <div>
+            <div class="s-name"><span class="s-icon">🔮</span>负荷预测AI</div>
+            <div class="s-desc">轻量化Transformer · 超短期负荷预测</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked onchange="askPwd('lp', this)"><span class="slider"></span></label>
+        </div>
+        
+        <div class="switch-row on" id="rowAS">
+          <div>
+            <div class="s-name"><span class="s-icon">⚙️</span>自动调度Agent</div>
+            <div class="s-desc">功率平衡 · 能量管理 · 需求响应联动</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked onchange="askPwd('as', this)"><span class="slider"></span></label>
+        </div>
+        
+        <div class="switch-row on" id="rowHP">
+          <div>
+            <div class="s-name"><span class="s-icon">🔌</span>断电保护AI</div>
+            <div class="s-desc">过载保护 · 短路跳闸 · 柔性转供自愈</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked onchange="askPwd('hp', this)"><span class="slider"></span></label>
+        </div>
+        
+        <!-- 过载测试按钮 -->
+        <button class="scene-btn" style="border-color:var(--green);background:rgba(16,185,129,.1);margin-bottom:10px" onclick="triggerOverloadProtect()">
+          ⚡ 点击测试：电流过载 AI断电保护
+          <div class="sd" style="color:var(--green)">点击后：弹出提示 + 自动暂停图表 + AI介入保护</div>
+        </button>
+        
+        <div class="switch-row on" id="rowEC">
+          <div>
+            <div class="s-name"><span class="s-icon">🖥️</span>边缘计算协同</div>
+            <div class="s-desc">6G+边缘NPU · 端边云协同推理 · 低时延决策</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked onchange="askPwd('ec', this)"><span class="slider"></span></label>
+        </div>
+        
+        <div class="switch-row on" id="rowSS">
+          <div>
+            <div class="s-name"><span class="s-icon">🛡️</span>6G网络切片安全</div>
+            <div class="s-desc">内生安全 · 动态防护 · 异常接入隔离</div>
+          </div>
+          <label class="switch"><input type="checkbox" checked onchange="askPwd('ss', this)"><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 中：拓扑+图表+场景 ========== -->
+  <div class="panel">
+    <div class="p-head">
+      <h3>🏭 微电网拓扑 & 实时数据</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn" onclick="toggleRun()" id="btnRun">⏸ 暂停</button>
+        <button class="btn" onclick="setSpeed(0.5)">🐢x0.5</button>
+        <button class="btn pri" onclick="setSpeed(1)">1x</button>
+        <button class="btn" onclick="setSpeed(2)">⚡x2</button>
+        <button class="btn dg" onclick="setSpeed(0)">⏹ 停止</button>
+      </div>
+    </div>
+    <div class="p-body">
+
+      <!-- 拓扑 -->
+      <svg class="topo-svg" id="topoSvg" viewBox="0 0 500 380" style="width:100%;height:300px;margin-bottom:10px"></svg>
+
+      <!-- Tab -->
+      <div class="tabbar">
+        <div class="tab on" onclick="switchTab(this,'tabCmp')">📊 对比曲线</div>
+        <div class="tab" onclick="switchTab(this,'tabV')">⚡ 电压曲线</div>
+        <div class="tab" onclick="switchTab(this,'tabP')">🔋 功率曲线</div>
+        <div class="tab" onclick="switchTab(this,'tabL')">🔮 负荷预测</div>
+      </div>
+
+      <!-- 对比曲线图（关键！） -->
+      <div class="tabbody on" id="tabCmp">
+        <div class="chart-wrap">
+          <div class="ct">
+            <span>📈 AI开 vs AI关 · 功率平衡对比</span>
+            <span style="font-size:10px" id="cmpHint">实时对比：同一负荷扰动下，有/无内生智能的表现差异</span>
+          </div>
+          <div class="legend">
+            <span><span class="line-box" style="background:var(--green)"></span>✦ 有AI（内生智能开启）</span>
+            <span><span class="line-box" style="background:var(--red);stroke-dasharray:4 3"></span>— 无AI（传统PID控制）</span>
+            <span><span class="line-box" style="background:var(--yellow)"></span>∆ 差异越大 = AI优势越大</span>
+          </div>
+          <canvas id="cmpChart" height="170"></canvas>
+        </div>
+      </div>
+
+      <div class="tabbody" id="tabV">
+        <div class="chart-wrap">
+          <div class="ct"><span>⚡ 母线电压 · 实时监测</span><span style="font-size:10px">V</span></div>
+          <div class="legend">
+            <span><span class="line-box" style="background:var(--cyan)"></span>实际电压</span>
+            <span><span class="line-box" style="background:var(--txt-dim)"></span>额定220V</span>
+            <span><span class="line-box" style="background:var(--red)"></span>超限告警线</span>
+          </div>
+          <canvas id="vChart" height="170"></canvas>
+        </div>
+      </div>
+
+      <div class="tabbody" id="tabP">
+        <div class="chart-wrap">
+          <div class="ct"><span>🔋 功率构成（发/充/耗/购）</span><span style="font-size:10px">kW</span></div>
+          <div class="legend">
+            <span><span class="line-box" style="background:var(--yellow)"></span>光伏发电</span>
+            <span><span class="line-box" style="background:var(--blue)"></span>负荷消耗</span>
+            <span><span class="line-box" style="background:var(--green)"></span>储能功率</span>
+            <span><span class="line-box" style="background:var(--cyan)"></span>电网交换</span>
+          </div>
+          <canvas id="pChart" height="170"></canvas>
+        </div>
+      </div>
+
+      <div class="tabbody" id="tabL">
+        <div class="chart-wrap">
+          <div class="ct"><span>🔮 负荷预测 · AI vs 实际</span><span style="font-size:10px">kW</span></div>
+          <div class="legend">
+            <span><span class="line-box" style="background:var(--blue)"></span>实际负荷</span>
+            <span><span class="line-box" style="background:var(--purple)"></span>AI预测</span>
+          </div>
+          <canvas id="lChart" height="170"></canvas>
+        </div>
+      </div>
+
+      <!-- 场景 -->
+      <div class="p-head" style="margin-top:8px;padding:6px 10px;background:transparent;border:none">
+        <h3 style="color:var(--txt);font-size:12px">🎬 动态场景触发（测试AI响应）</h3>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+        <button class="scene-btn" onclick="scn('overload')">🔥 过载150%<div class="sd">测试断电保护AI</div></button>
+        <button class="scene-btn" onclick="scn('pv')">☁️ 光伏骤降<div class="sd">测试储能+调度AI</div></button>
+        <button class="scene-btn" onclick="scn('gfault')">⚠ 主电网故障<div class="sd">测试孤岛切换+自愈</div></button>
+        <button class="scene-btn" onclick="scn('short')">⚡ 短路故障<div class="sd">测试快速跳闸+柔性转供</div></button>
+        <button class="scene-btn" onclick="scn('unauth')">🛡️ 异常接入<div class="sd">测试内生安全隔离</div></button>
+        <button class="scene-btn" onclick="scn('normal')">✅ 恢复常态<div class="sd">回归稳态运行</div></button>
+        <button class="scene-btn" style="grid-column:1/-1;border-color:var(--purple);background:rgba(139,92,246,.12)" onclick="openRepair()">🤖🚁 打开维修副画面<div class="sd" style="color:var(--purple)">机器人+无人机协同抢修现场 · 修完自动恢复主画面</div></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 右：AI决策+Agent+日志 ========== -->
+  <div class="panel">
+    <div class="p-head">
+      <h3>🧠 AI内生智能决策中枢</h3>
+      <span style="font-size:10px;color:var(--txt-dim)" id="aiStatusTag">● 运行中</span>
+    </div>
+    <div class="p-body">
+      
+      <!-- AI决策面板 -->
+      <div class="ai-dec" id="aiDecPanel">
+        <h5>🤖 <span id="aiDecTitle">智网守护AI Agent · 稳态运行</span></h5>
+        <div class="ai-body" id="aiDecBody">
+          系统稳态运行中，6G内生智能引擎<span style="color:var(--green)">● 全功能在线</span>。<br>
+          当前功率平衡 <b style="color:var(--cyan)">+1.2kW</b>，母线电压 <b style="color:var(--cyan)">220.5V</b>，储能SOC <b style="color:var(--green)">82%</b>。
+        </div>
+        <div class="ai-action" id="aiDecAct">⚙️ AI策略：光伏优先供电 → 储能平稳充电 → 电网备用</div>
+        <div class="conf">模型置信度 <div class="confbar"><div class="confbar-fill" id="confFill" style="width:94%"></div></div><span id="confTxt">94.7%</span></div>
+      </div>
+
+      <!-- 关闭AI时提示 -->
+      <div id="aiOffPanel" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;text-align:center">
+        <div style="font-size:40px;margin-bottom:8px">⚠️</div>
+        <div style="color:var(--yellow);font-size:13px;font-weight:600">内生智能已关闭</div>
+        <div style="color:var(--txt-dim);font-size:11px;margin-top:6px;line-height:1.6">
+          电网将以传统PID控制运行<br>
+          故障响应延迟↑50倍 · 电压波动↑3倍<br>
+          过载保护依赖硬件继电器
+        </div>
+      </div>
+
+      <!-- Agent列表 -->
+      <div class="p-head" style="border:none;background:transparent;padding:4px 0 6px 0">
+        <h3 style="color:var(--txt);font-size:12px">🤝 多智能体协同（6G通感）</h3>
+      </div>
+      <div class="agent sun"><div class="av">☀️</div><div class="info"><div class="nm">光伏Agent</div><div class="st" id="aSun">MPPT追踪 · 发电3.8kW</div></div><div style="font-size:10px;color:var(--green)">OK</div></div>
+      <div class="agent bat"><div class="av">🔋</div><div class="info"><div class="nm">储能Agent</div><div class="st" id="aBat">充电中 · SOC 82%</div></div><div style="font-size:10px;color:var(--green)">OK</div></div>
+      <div class="agent ld"><div class="av">⚡</div><div class="info"><div class="nm">负荷Agent</div><div class="st" id="aLd">总负荷2.6kW · 需求响应待命</div></div><div style="font-size:10px;color:var(--green)">OK</div></div>
+      <div class="agent gr"><div class="av">🌐</div><div class="info"><div class="nm">电网Agent</div><div class="st" id="aGr">并网 · 交换+1.2kW</div></div><div style="font-size:10px;color:var(--green)">OK</div></div>
+      <div class="agent sec"><div class="av">🛡️</div><div class="info"><div class="nm">安全Agent</div><div class="st" id="aSec">动态防护 · 无威胁</div></div><div style="font-size:10px;color:var(--green)">OK</div></div>
+      <div class="agent nw"><div class="av">📡</div><div class="info"><div class="nm">网络Agent</div><div class="st" id="aNw">6G · 时延3.2ms</div></div><div style="font-size:10px;color:var(--green)">OK</div></div>
+
+      <!-- 日志 -->
+      <div class="p-head" style="border:none;background:transparent;padding:10px 0 6px 0;display:flex;justify-content:space-between">
+        <h3 style="color:var(--txt);font-size:12px">📋 事件日志</h3>
+        <button class="btn" style="padding:3px 8px;font-size:10px" onclick="clearLog()">🧹清空</button>
+      </div>
+      <div class="alog" id="alog"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ====== 状态 ======
+const S = {
+  run: true, speed: 1, tick: 0, scn: 'normal',
+  aiOn: true, subs: { fd:true, lp:true, as:true, hp:true, ec:true, ss:true },
+  pv:3.8, soc:82, stPow:-1.2, load:2.6, grPow:1.2, v:220.5, f:50.02,
+  // 曲线
+  c: { pv:[], load:[], v:[], f:[], st:[], gr:[], pred:[],
+       aiCmp:[],  // 有AI的功率平衡
+       noAICmp:[] // 无AI的功率平衡
+  },
+  // 开关切换事件（用于曲线竖线标注 + 阶跃落差）
+  switchEvents: [],
+  // 切换时注入的阶跃值（瞬时差距反馈）
+  stepOffset: 0,
+  lastAction: null,
+};
+
+// ====== 开关控制 ======
+function toggleAIMain() {
+  S.aiOn = document.getElementById('aiMainSwitch').checked;
+  document.getElementById('rowAI').classList.toggle('on', S.aiOn);
+  document.getElementById('rowAI').classList.toggle('off', !S.aiOn);
+  document.getElementById('aiMainBadge').textContent = S.aiOn ? '● 已激活' : '● 已关闭';
+  document.getElementById('aiMainBadge').style.color = S.aiOn ? 'var(--green)' : 'var(--red)';
+  document.getElementById('aiMainStatus').textContent = '内生智能：' + (S.aiOn?'ON':'OFF');
+  document.getElementById('aiStatusTag').textContent = S.aiOn ? '● 运行中' : '○ 待机中';
+  document.getElementById('aiDecPanel').style.display = S.aiOn ? '' : 'none';
+  document.getElementById('aiOffPanel').style.display = S.aiOn ? 'none' : '';
+  addLog(S.aiOn?'s':'w', `${S.aiOn?'✅':'❌'} 内生智能主引擎${S.aiOn?'已激活':'已关闭'} — ${S.aiOn?'进入自主运维模式':'降级为传统PID控制'}`);
+  // ★ 开关切换事件标注 → 对比曲线立刻分层
+  markSwitchEvent('主引擎', S.aiOn ? 1 : -1);
+  // 立刻手动补一次差距（不等到下个tick）
+  drawAll();
+}
+
+// ====== 密码验证（开关保护） ======
+const PWD = '1120';
+let pwdQueue = null; // {type: 'main'|subkey, el: checkbox, checked: bool}
+const NAME_MAP = {
+  main: 'AI内生智能主引擎',
+  fd:   '故障检测AI',
+  lp:   '负荷预测AI',
+  as:   '自动调度Agent',
+  hp:   '断电保护AI',
+  ec:   '边缘计算协同',
+  ss:   '6G网络切片安全',
+};
+function askPwd(type, el) {
+  // 先恢复开关（不通过密码之前不允许真切换）
+  el.checked = !el.checked;
+  const target = !el.checked; // 目标状态（本次切换要去的）
+  pwdQueue = { type, el, target };
+  const tip = NAME_MAP[type] || '该模块';
+  document.getElementById('pwdTip').textContent = `切换【${tip}】${target?'开启':'关闭'}需验证密码`;
+  document.getElementById('pwdErr').textContent = '';
+  document.getElementById('pwdInput').value = '';
+  document.getElementById('pwdMask').classList.add('on');
+  setTimeout(() => {
+    const inp = document.getElementById('pwdInput');
+    inp.focus(); inp.select();
+  }, 100);
+}
+function closePwd() {
+  document.getElementById('pwdMask').classList.remove('on');
+  pwdQueue = null;
+}
+function submitPwd() {
+  const inp = document.getElementById('pwdInput');
+  const err = document.getElementById('pwdErr');
+  if (inp.value.trim() === PWD) {
+    document.getElementById('pwdMask').classList.remove('on');
+    // 验证通过，执行切换
+    if (pwdQueue) {
+      const { type, el, target } = pwdQueue;
+      el.checked = target; // 把开关切到目标状态
+      if (type === 'main') toggleAIMain();
+      else toggleSub(type, target);
+    }
+    pwdQueue = null;
+  } else {
+    err.textContent = '❌ 密码错误，请重新输入（提示：4位数字）';
+    inp.style.borderColor = 'var(--red)';
+    inp.value = '';
+    inp.focus();
+    // 抖动动画
+    const box = document.querySelector('.pwd-box');
+    box.style.animation = 'none'; void box.offsetWidth;
+    box.style.animation = 'shake .3s';
+    const sh = document.createElement('style');
+    sh.textContent = '@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }';
+    document.head.appendChild(sh);
+    setTimeout(() => inp.style.borderColor = 'var(--border)', 600);
+  }
+}
+// 回车提交
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.getElementById('pwdMask').classList.contains('on')) submitPwd();
+  if (e.key === 'Escape' && document.getElementById('pwdMask').classList.contains('on')) closePwd();
+});
+
+function toggleSub(k, on) {
+  S.subs[k] = on;
+  const id = {fd:'rowFD',lp:'rowLP',as:'rowAS',hp:'rowHP',ec:'rowEC',ss:'rowSS'}[k];
+  const el = document.getElementById(id);
+  el.classList.toggle('on', on);
+  el.classList.toggle('off', !on);
+  const name = {fd:'故障检测AI',lp:'负荷预测AI',as:'自动调度',hp:'断电保护AI',ec:'边缘计算',ss:'切片安全'}[k];
+  addLog(on?'i':'w', `${on?'✅':'❌'} 子模块 [${name}] ${on?'开启':'关闭'}`);
+  // ★ 开关切换事件标注 → 对比曲线立刻分层
+  markSwitchEvent(name, on ? 1 : -1);
+  // 立刻补一个点，让差距马上显示
+  if (S.c.aiCmp.length) {
+    const last = S.c.aiCmp[S.c.aiCmp.length-1] || 0;
+    const lastN = S.c.noAICmp[S.c.noAICmp.length-1] || 0;
+    const dir = on ? 1 : -1;
+    const bump = 0.6 + Math.random()*0.3;
+    push('aiCmp', last + dir*bump*0.6);
+    push('noAICmp', lastN - dir*bump);
+    // 同步补其他曲线
+    push('pv', S.pv); push('load', S.load); push('st', S.stPow); push('gr', S.grPow);
+    push('v', S.v);
+    const predAcc = S.aiOn && S.subs.lp ? 0.96 + Math.random()*0.03 : 0.88 + Math.random()*0.07;
+    push('pred', S.load * predAcc);
+  }
+  drawAll();
+}
+
+// ====== 场景 ======
+function scn(t) {
+  S.scn = t;
+  switch(t) {
+    case 'overload':
+      // ===== 1. 自动暂停 =====
+      if (S.run) {
+        S.run = false;
+        document.getElementById('btnRun').textContent = '▶ 继续';
+      }
+      // ===== 2. 绿色横幅提示 =====
+      showBanner('⚡ 电流过载 AI断电保护开启', 'success');
+      // ===== 3. 红色闪光 =====
+      showFlash();
+      // ===== 4. 过载 =====
+      S.load = 4.5;
+      addLog('c','🔥🔥🔥 严重电流过载！4.5kW / 3.5kW额定（超载128%）');
+      addLog('c','⚡ 电流曲线红色闪烁告警...');
+      if (S.aiOn && S.subs.hp) {
+        setTimeout(() => {
+          addLog('i','🧠 AI断电保护引擎启动中...');
+          addLog('s','📊 6G通感一体：边缘NPU实时阻抗采样 200μs');
+        }, 400);
+        setTimeout(() => {
+          addLog('s','📡 6G URLLC切片(0.8ms)下发智能断路器SCB-01跳闸指令');
+          addLog('s','🔌 智能断路器动作！柔性限流 20ms 内完成');
+          addLog('s','🔋 储能Agent响应：满功率放电 -3.0kW');
+          addLog('s','👥 多智能体经6G网络协同决策：6Agent/100Hz 完成');
+        }, 1200);
+        setTimeout(() => {
+          S.load = 3.8;
+          addLog('s','✅ 过载解除！电流已恢复安全阈值以内');
+          addLog('s','🧬 数字孪生同步：故障波形已存档用于推演复盘');
+        }, 2500);
+      } else {
+        setTimeout(() => addLog('w','⚠️ [AI关闭] 传统继电器保护动作，跳闸延迟 150ms'), 400);
+      }
+      addLog('i','💡 提示：点击"▶ 继续"按钮恢复仿真运行');
+      updateAIDec(); updateDot(); break;
+    case 'pv':
+      S.pv = 0.6;
+      addLog('w','☁️ 光伏骤降84%！出力0.6kW');
+      if (S.aiOn && S.subs.as) {
+        setTimeout(() => addLog('s','🧠 AI调度：储能放电+电网补能，30秒内恢复功率平衡'), 400);
+      }
+      updateAIDec(); break;
+    case 'gfault':
+      S.v = 185; S.grPow = 0;
+      addLog('c','⚠️ 主电网故障！电压跌至185V，脱网保护启动');
+      if (S.aiOn && S.subs.hp) {
+        setTimeout(() => {
+          addLog('s','🧠 AI孤岛切换：毫秒级状态同步，储能瞬时支撑母线');
+          addLog('s','🔄 成功切换至孤岛运行模式，负载不间断供电');
+        }, 700);
+      } else {
+        showBanner('主电网故障！正在跳闸...');
+      }
+      updateAIDec(); break;
+    case 'short':
+      addLog('c','⚡ 短路故障！配电线路L3电流突增12倍');
+      showFlash();
+      if (S.aiOn && S.subs.fd) {
+        setTimeout(() => {
+          addLog('s','🧠 AI故障定位：L3-8号杆段（阻抗法+行波法融合）');
+          addLog('s','🔌 智能开关动作：故障段隔离 + 柔性互联转供完成');
+          addLog('s','✅ 自愈成功，恢复供电时间 <b style="color:var(--green)">82ms</b>');
+        }, 900);
+      } else {
+        showBanner('短路保护！继电器动作延迟中...');
+      }
+      updateAIDec(); break;
+    case 'unauth':
+      addLog('c','🛡️ 检测到非授权设备接入！MAC:**:**:**:4A:B2:91');
+      if (S.aiOn && S.subs.ss) {
+        setTimeout(() => addLog('s','🧠 6G内生安全：端口自动隔离 + 网络切片封禁 + 告警推送'), 500);
+      }
+      updateAIDec(); break;
+    case 'normal':
+      S.pv = 3.8; S.load = 2.6; S.v = 220.5; S.grPow = 1.2;
+      addLog('s','✅ 所有异常清理完成，回归稳态运行');
+      updateAIDec(); break;
+  }
+  updateDot();
+}
+
+function showFlash() {
+  const l = document.getElementById('flashLayer');
+  l.style.background = 'radial-gradient(circle at center, transparent 30%, rgba(239,68,68,.35) 100%)';
+  l.style.animation = 'none'; void l.offsetWidth; l.style.animation = 'ploss .4s ease-out';
+  setTimeout(() => { l.style.background = 'radial-gradient(circle at center, transparent 30%, rgba(6,182,212,.15) 100%)'; l.style.animation = 'none'; void l.offsetWidth; }, 400);
+}
+function showBanner(txt, type='error') {
+  const l = document.getElementById('bannerLayer');
+  const cls = type === 'success' ? 'banner success' : 'banner';
+  const icon = type === 'success' ? '🛡️' : '⚠️';
+  l.innerHTML = `<div class="${cls}"><span class="banner-icon">${icon}</span> ${txt}</div>`;
+  setTimeout(() => l.innerHTML = '', 3500);
+}
+
+// ====== 过载断电保护按钮（用户定制） ======
+function triggerOverloadProtect() {
+  // 1. 自动暂停图表
+  if (S.run) {
+    S.run = false;
+    document.getElementById('btnRun').textContent = '▶ 继续';
+    addLog('w','⏸ 仿真已自动暂停（过载保护触发）');
+  }
+  
+  // 2. 弹出提示横幅（绿色AI成功模式）
+  showBanner('⚡ 电流过载 AI断电保护开启', 'success');
+  
+  // 3. 电流突增效果（红色闪光）
+  showFlash();
+  
+  // 4. 触发过载场景
+  S.scn = 'overload';
+  S.load = 5.2; // 更大的过载让效果更明显
+  addLog('c','🔥🔥🔥 严重电流过载！5.2kW / 3.5kW额定（超载148%）');
+  addLog('c','⚡ 电流曲线红色闪烁告警...');
+  
+  // 5. AI介入流程（带时间差展示）
+  setTimeout(() => {
+    if (S.aiOn && S.subs.hp) {
+      addLog('i','🧠 AI断电保护引擎启动中...');
+      addLog('s','📊 边缘NPU实时阻抗采样 200μs');
+    }
+  }, 400);
+  
+  setTimeout(() => {
+    if (S.aiOn && S.subs.hp) {
+      addLog('s','🔌 智能断路器SCB-01动作！柔性限流 20ms 内完成');
+      addLog('s','🔋 储能Agent响应：满功率放电 -3.5kW');
+      addLog('s','👥 多智能体协同决策：6Agent/100Hz 通信完成');
+    } else {
+      addLog('w','⚠️ [AI关闭] 传统继电器保护动作，跳闸延迟 150ms');
+    }
+  }, 1200);
+  
+  setTimeout(() => {
+    if (S.aiOn && S.subs.hp) {
+      S.load = 3.5;
+      S.stPow = -3.0;
+      addLog('s','✅ 过载解除！电流已恢复安全阈值以内');
+      addLog('s','📈 功率曲线恢复平稳，AI持续监控中');
+    }
+  }, 2500);
+  
+  // 6. 更新AI决策面板
+  updateAIDec();
+  updateDot();
+  
+  addLog('i','💡 提示：点击"▶ 继续"按钮恢复仿真运行');
+}
+
+// ====== AI决策面板 ======
+function updateAIDec() {
+  const h = document.getElementById('aiDecTitle');
+  const b = document.getElementById('aiDecBody');
+  const a = document.getElementById('aiDecAct');
+  if (!S.aiOn) return;
+  if (S.scn === 'overload') {
+    h.textContent = '🔥 过载紧急响应 · AI协同决策';
+    b.innerHTML = '负荷超限128%，<b style="color:var(--yellow)">6个子Agent实时协同</b>：<br>'+
+      '• 储能Agent → 满功率放电 -3.0kW<br>• 负荷Agent → 需求响应降载<br>• 电网Agent → 扩容请求 +0.5kW<br>• 安全Agent → 防护状态升级';
+    a.innerHTML = '⚡ AI策略：<b>储能兜底+需求响应+电网补能</b> 三路联动';
+  } else if (S.scn === 'pv') {
+    h.textContent = '☁️ 光伏骤降 · 功率补偿策略';
+    b.innerHTML = '光伏出力骤降84%，AI智能补偿启动：<br>• 储能Agent → 调整放电策略<br>• 电网Agent → 增加购电 +2.5kW<br>• 负荷Agent → 柔性负荷时移10min';
+    a.innerHTML = '⚙️ AI策略：<b>储能优先补偿 + 电网补能 + 柔性负荷调度</b>';
+  } else if (S.scn === 'gfault') {
+    h.textContent = '⚠️ 主电网故障 · 孤岛切换';
+    b.innerHTML = '检测到主电网电压跌落16%：<br>• 6G GOOSE报文 <b style="color:var(--green)">3.2ms</b> 完成全网同步<br>• 储能Agent → 瞬时放电支撑母线<br>• 光伏Agent → 独立运行模式<br>• 安全Agent → 闭锁并网开关';
+    a.innerHTML = '🔄 AI策略：<b>毫秒级孤岛切换 · 自研离网控制算法 v3.2</b>';
+  } else if (S.scn === 'short') {
+    h.textContent = '⚡ 短路故障 · 定位与自愈';
+    b.innerHTML = '多智能体协同完成故障处置：<br>• 故障检测AI → 阻抗+行波融合定位<br>• 边缘计算 → 节点协同推理<br>• 自动调度Agent → 柔性互联转供';
+    a.innerHTML = '🔌 AI策略：<b>快速隔离 + 柔性转供 + 拓扑重构 + 自愈完成</b>';
+  } else if (S.scn === 'unauth') {
+    h.textContent = '🛡️ 内生安全 · 异常隔离';
+    b.innerHTML = '6G内生安全机制触发：<br>• 安全Agent → 设备指纹非匹配<br>• 网络Agent → 端口隔离 + MAC拉黑<br>• 6G切片 → 区域隔离完成';
+    a.innerHTML = '🛡️ AI策略：<b>动态端口隔离 · 切片防护 · 告警推送</b>';
+  } else {
+    h.textContent = '智网守护AI Agent · 稳态运行';
+    b.innerHTML = '系统稳态，6G内生智能 <b style="color:var(--green)">● 全功能在线</b>：<br>功率平衡 <b style="color:var(--cyan)">+' + (S.pv - S.load + S.stPow + S.grPow).toFixed(1) + 'kW</b> · 电压 <b style="color:var(--cyan)">' + S.v.toFixed(1) + 'V</b> · SOC <b style="color:var(--green)">' + S.soc.toFixed(0) + '%</b>';
+    a.innerHTML = '⚙️ AI策略：<b>光伏优先 → 储能平稳充电 → 电网备用</b>';
+  }
+  const conf = (92 + Math.random() * 6).toFixed(1);
+  document.getElementById('confFill').style.width = conf + '%';
+  document.getElementById('confTxt').textContent = conf + '%';
+}
+
+// ====== 开关事件标记（切换瞬间曲线立刻显示差距） ======
+function markSwitchEvent(name, dir) {
+  // dir: 1=开启, -1=关闭
+  // 1. 记录事件（给绘制竖线用），附带当前数据点索引
+  const idx = S.c.aiCmp.length || 0;
+  S.switchEvents.push({ idx, name, dir, time: Date.now() });
+  // 只保留最近6条，避免太多
+  if (S.switchEvents.length > 6) S.switchEvents.shift();
+
+  // 2. 注入"阶跃落差"——关闭模块时让noAI曲线立刻下跳；开启时让ai曲线立刻上跳
+  const delta = dir === -1 ? -1.3 - Math.random()*0.4 : 0.9 + Math.random()*0.3;
+  S.stepOffset = delta * 0.4;
+  // 衰减：后面tick里慢慢消失
+  setTimeout(() => { S.stepOffset *= 0.3; }, 1500);
+  setTimeout(() => { S.stepOffset = 0; }, 4000);
+}
+
+// ====== 仿真循环 ======
+function tick() {
+  if (!S.run) return;
+  S.tick++;
+
+  // 光伏波动
+  const pvNoise = (Math.random() - 0.5) * 0.2;
+  let pv = S.pv + pvNoise;
+  if (S.scn === 'normal' && S.tick % 20 === 0) pv = 3.5 + Math.sin(S.tick/80) * 0.3;
+
+  // 负荷波动
+  let load = S.load + (Math.random() - 0.5) * 0.1;
+
+  // ===== 关键：AI vs 非AI 两套控制逻辑 =====
+  let stPow = S.stPow, soc = S.soc, v = S.v, grPow = S.grPow;
+  let aiBal, noAIBal;
+
+  // ===== 子模块关闭的"劣化权重"（每个模块对应不同劣化效果） =====
+  // 统计关闭了多少个模块（0~7）
+  let offWeight = 0;
+  if (S.aiOn) {
+    if (!S.subs.as) offWeight += 1;   // 调度关 → 功率波动
+    if (!S.subs.hp) offWeight += 1.2; // 断电保护关 → 电压大幅波动
+    if (!S.subs.lp) offWeight += 0.5; // 负荷预测关 → 预测不准
+    if (!S.subs.fd) offWeight += 0.8; // 故障检测关 → 异常积累
+    if (!S.subs.ec) offWeight += 0.6; // 边缘计算关 → 延迟引入偏差
+    if (!S.subs.ss) offWeight += 0.4; // 安全关 → 小波动
+  } else {
+    offWeight = 4.5; // 主开关关 → 全效果叠加
+  }
+  const voltNoise = (S.aiOn && S.subs.hp ? 0.4 : S.aiOn ? 1.0 : 2.5) + offWeight * 0.35;
+  const balNoise = offWeight * 0.25;
+  // 劣化的noAI基准偏移（让曲线立刻分层）
+  const noAIOffset = S.aiOn ? -offWeight * 0.22 - S.stepOffset : 0;
+  const aiBonus = S.aiOn ? offWeight * 0.08 + S.stepOffset*0.5 : 0;
+
+  if (S.aiOn) {
+    // === 有AI：智能调度 ===
+    const bal = pv - load + stPow + grPow;
+    if (S.subs.as) {
+      // AI自动调度
+      if (bal > 0.3 && soc < 92) stPow = Math.min(1.5, bal * 0.7);   // 充电
+      else if (bal < -0.3 && soc > 25) stPow = Math.max(-3.0, bal * 0.8); // 放电
+      else stPow = Math.max(-1.0, Math.min(1.0, stPow + (Math.random()-0.5)*0.2));
+    } else {
+      // 自动调度关：响应慢（类PID）
+      stPow = Math.max(-2, Math.min(2, stPow * 0.9 + (Math.random()-0.5)*0.5));
+    }
+    if (S.scn === 'overload' && S.subs.as) stPow = -2.8;
+    if (S.scn === 'pv' && S.subs.as) stPow = -2.2;
+    if (S.scn === 'gfault') stPow = -3.2;
+
+    const bal2 = pv - load + stPow;
+    if (S.scn !== 'gfault') {
+      grPow = Math.max(-2.0, Math.min(2.0, bal2 * 0.9));
+    } else grPow = 0;
+
+    soc = Math.max(10, Math.min(100, soc - stPow * 0.04 * S.speed));
+    // AI电压补偿（断电保护关时补偿失效）
+    v = 220.5 + (Math.random() - 0.5) * voltNoise;
+    if (S.scn === 'gfault') v = (S.subs.hp ? 198 : 186) + (Math.random()-0.5)*(S.subs.hp?2:6);
+    if (S.scn === 'overload') v = (S.subs.hp ? 218 : 210) + (Math.random()-0.5)*(S.subs.hp?1.5:4);
+
+    aiBal = pv - load + stPow + grPow + (Math.random()-0.5)*balNoise + aiBonus;
+    noAIBal = computeNoAIBal(pv, load, S.scn) + (Math.random()-0.5)*0.6 + noAIOffset;
+  } else {
+    // === 无AI：传统PID ===
+    stPow = Math.max(-2, Math.min(2, stPow * 0.92 + (Math.random()-0.5)*0.5)); // 响应慢
+    soc = Math.max(10, Math.min(100, soc - stPow * 0.03 * S.speed));
+    grPow = Math.max(-2, Math.min(2, grPow * 0.88 + (Math.random()-0.5)*0.6));
+    // PID电压波动大
+    v = 220 + (Math.random() - 0.5) * voltNoise;
+    if (S.scn === 'gfault') v = 180 + (Math.random()-0.5)*8;
+    if (S.scn === 'overload') v = 205 + (Math.random()-0.5)*5;
+    
+    aiBal = computeAIBalTheoretical(pv, load, S.scn) + Math.random()*0.4;
+    noAIBal = pv - load + stPow + grPow + (Math.random()-0.5)*0.8;
+  }
+
+  // 更新
+  S.pv = pv; S.load = load; S.stPow = stPow; S.soc = soc;
+  S.grPow = grPow; S.v = v;
+
+  // 曲线
+  push('pv', pv); push('load', load); push('st', stPow); push('gr', grPow);
+  push('v', v); push('aiCmp', aiBal); push('noAICmp', noAIBal);
+  // 负荷预测：AI开（且LP开）时更准，关时偏差大
+  const predAcc = S.aiOn && S.subs.lp ? 0.96 + Math.random()*0.03 : 0.88 + Math.random()*0.07;
+  push('pred', load * predAcc + (S.aiOn && S.subs.lp ? 0 : (Math.random()-0.5)*0.3));
+
+  // 更新UI
+  updateMetrics();
+  updateTopo();
+  updateAgents();
+  update6G();
+  drawAll();
+}
+function push(k, v) { S.c[k].push(v); if (S.c[k].length > 120) S.c[k].shift(); }
+function computeNoAIBal(pv, load, scn) {
+  let st = S.stPow * 0.8 + (Math.random()-0.5)*0.8;
+  let gr = S.grPow * 0.85 + (Math.random()-0.5)*0.7;
+  if (scn === 'gfault') gr = 0;
+  return pv - load + st + gr;
+}
+function computeAIBalTheoretical(pv, load, scn) {
+  let st = S.stPow, gr = S.grPow;
+  const bal = pv - load + st + gr;
+  if (bal > 0) st = Math.min(1.5, bal * 0.7);
+  else st = Math.max(-3.0, bal * 0.8);
+  if (scn === 'gfault') { gr = 0; st = -3; }
+  gr = Math.max(-2, Math.min(2, pv - load + st));
+  return pv - load + st + gr;
+}
+
+// ====== 6G核心能力带（通感算智 · 空天地 · 切片 · 孪生） ======
+let tick6g = 0;
+const G6LOGS = [
+  '📡 6G通感一体：完成全网节点阻抗扫描（200μs/点 · 精度99.2%）',
+  '🛰️ NTN空天地：卫星备份链路时钟同步完成（±100ns）',
+  '✂️ 切片SLA：URLLC电力控制切片时延0.8ms · 达标率99.99%',
+  '🧬 数字孪生：微电网镜像推演完成 · 预测未来5min潮流',
+  '🔗 mMTC：128终端海量接入 · 连接密度10⁶/km²',
+  '📶 毫米波链路：峰值吞吐1.8Gbps · 频谱效率↑40%',
+  '🧠 AI-Native：网络自治域自决策 · 人工干预0次',
+];
+function update6G() {
+  const ecOK = S.aiOn && S.subs.ec;   // 边缘计算
+  const ssOK = S.aiOn && S.subs.ss;   // 切片安全
+
+  // --- 通感一体 ---
+  document.getElementById('isacV').innerHTML = (S.aiOn ? '6/6' : '0/6') + ' <small>节点感知</small>';
+  document.getElementById('isacSub').textContent = S.aiOn ? '阻抗扫描 200μs · 精度99.2%' : '⚠ 仅透传 · 通信感知分离';
+
+  // --- 吞吐率 ---
+  const thp = ecOK ? 0.9 + Math.random()*0.9 : 0.2 + Math.random()*0.15;
+  document.getElementById('thpV').innerHTML = thp.toFixed(1) + ' <small>Gbps</small>';
+  document.getElementById('thpSub').textContent = ecOK ? 'Sub-6GHz + 毫米波' : '⚠ 边缘算力离线 · 吞吐劣化';
+
+  // --- 网络切片 ---
+  const segs = [['seg1',38],['seg2',24],['seg3',22],['seg4',16]];
+  if (ssOK) {
+    document.getElementById('cellSlice').classList.remove('warn');
+    const cnt = document.getElementById('sliceCnt');
+    cnt.textContent = '4/4 SLA达标'; cnt.style.color = 'var(--green)';
+    segs.forEach(([id,w]) => { const e=document.getElementById(id); e.style.width=w+'%'; e.style.opacity=1; });
+    document.getElementById('sliceSub').textContent = 'URLLC切片 ' + (ecOK?'0.8':'2.5') + 'ms · 切片间隔离度 99.99%';
+  } else {
+    document.getElementById('cellSlice').classList.add('warn');
+    const cnt = document.getElementById('sliceCnt');
+    cnt.textContent = '⚠ 切片已失效'; cnt.style.color = 'var(--red)';
+    segs.forEach(([id,w]) => { const e=document.getElementById(id); e.style.width=(w/4)+'%'; e.style.opacity=.25; });
+    document.getElementById('sliceSub').textContent = '传统QoS · 无硬隔离 · 电力业务安全风险↑';
+  }
+
+  // --- NTN 空天地 ---
+  const ntnCell = document.getElementById('cellNTN');
+  if (ssOK) {
+    ntnCell.classList.remove('warn');
+    document.getElementById('ntnSync').textContent = '同步 ' + (99.97+Math.random()*0.02).toFixed(2) + '%';
+    document.getElementById('ntnSync').style.color = 'var(--green)';
+    document.getElementById('ntnV').innerHTML = '✦卫星锁定 · 基站 · 地面 三层组网';
+    document.getElementById('ntnSub').textContent = '卫星备份链路 · 时钟同步 ±100ns';
+  } else {
+    ntnCell.classList.add('warn');
+    document.getElementById('ntnSync').textContent = '⚠ 链路未认证';
+    document.getElementById('ntnSync').style.color = 'var(--red)';
+    document.getElementById('ntnV').innerHTML = '○ 卫星接入挂起（内生安全关闭）';
+    document.getElementById('ntnSub').textContent = '无切片认证 · NTN备份链路不可用';
+  }
+
+  // --- mMTC 终端 ---
+  const mtc = ssOK ? 124 + Math.floor(Math.random()*8) : 88 + Math.floor(Math.random()*12);
+  document.getElementById('mtcV').innerHTML = mtc + ' <small>个在线</small>';
+
+  // --- 数字孪生 ---
+  if (S.aiOn) {
+    const tw = 98.4 + Math.random()*1.3;
+    document.getElementById('dtV').innerHTML = tw.toFixed(1) + ' <small>%同步</small>';
+    document.getElementById('dtSub').textContent = '推演时延 5ms · 潮流预测';
+  } else {
+    document.getElementById('dtV').innerHTML = '○ <small>已停用</small>';
+    document.getElementById('dtSub').textContent = '⚠ 孪生体离线 · 无推演';
+  }
+
+  // --- 6G链路动画速度（边缘计算关 → 变慢变灰） ---
+  const lk = document.getElementById('lnk6g');
+  if (lk) lk.classList.toggle('slow', !ecOK);
+  const ls = document.getElementById('lnkSAT');
+  if (ls) ls.classList.toggle('slow', !ssOK);
+
+  // --- 周期性6G日志 ---
+  if (++tick6g % 90 === 0 && S.aiOn) {
+    addLog('i', G6LOGS[Math.floor(Math.random()*G6LOGS.length)]);
+  }
+}
+
+// ====== 指标 ======
+function updateMetrics() {
+  if (typeof S.pv !== 'number') return;
+  const bal = S.pv - S.load + S.stPow + S.grPow;
+  document.getElementById('mBal').textContent = bal.toFixed(1);
+  const mb = document.getElementById('mBal');
+  mb.classList.remove('flash'); void mb.offsetWidth;
+  if (Math.abs(bal) > 1.2) mb.classList.add('flash');
+
+  const tb = document.getElementById('tBal');
+  if (bal > 0.5) tb.textContent = '▲ 富余上网', tb.className = 't t-u';
+  else if (bal < -0.5) tb.textContent = '▼ 电网购电', tb.className = 't t-d';
+  else tb.textContent = '◆ 平衡', tb.className = 't t-s';
+
+  document.getElementById('mSOC').textContent = S.soc.toFixed(0);
+  const ts = document.getElementById('tSOC');
+  if (S.stPow > 0.3) { ts.textContent = '▼ 放电中'; ts.className='t t-d'; }
+  else if (S.stPow < -0.3) { ts.textContent = '▲ 充电中'; ts.className='t t-u'; }
+  else { ts.textContent = '◆ 平稳'; ts.className='t t-s'; }
+
+  document.getElementById('mV').textContent = S.v.toFixed(1);
+  const tv = document.getElementById('tV');
+  if (S.v < 215 || S.v > 225) tv.textContent = '⚠ 波动', tv.className='t t-d';
+  else tv.textContent = '◆ 正常', tv.className='t t-s';
+
+  const ecOK = S.aiOn && S.subs.ec;
+  const lat = ecOK ? 0.6 + Math.random()*0.4 : 4.2 + Math.random()*1.6;
+  document.getElementById('mLat').textContent = lat.toFixed(1);
+  const tl = document.getElementById('tLat');
+  if (ecOK) { tl.textContent = '◆ URLLC 确定性低时延'; tl.className = 't t-u'; }
+  else { tl.textContent = '⚠ 时延劣化 4~6ms'; tl.className = 't t-d'; }
+  document.getElementById('mAcc').textContent = (S.aiOn ? 93.5+Math.random()*3 : 65+Math.random()*5).toFixed(1);
+  document.getElementById('mSec').textContent = (S.scn === 'unauth' ? '告警中' : '正常');
+}
+function updateDot() {
+  const d = document.getElementById('sysDot');
+  const t = document.getElementById('sysTxt');
+  if (S.scn === 'overload' || S.scn === 'gfault' || S.scn === 'short') { d.className='dot r'; t.textContent='紧急状态'; }
+  else if (S.scn !== 'normal') { d.className='dot y'; t.textContent='告警状态'; }
+  else { d.className='dot g'; t.textContent='系统正常'; }
+}
+
+// ====== 拓扑 ======
+function buildTopo() {
+  const svg = document.getElementById('topoSvg');
+  svg.innerHTML = `
+    <defs>
+      <pattern id="g1" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1a2338" stroke-width="0.5"/>
+      </pattern>
+    </defs>
+    <rect width="500" height="380" fill="url(#g1)"/>
+    
+    <!-- 电网 -->
+    <g id="tGrid">
+      <circle cx="440" cy="60" r="26" fill="none" stroke="#06b6d4" stroke-width="2" class="glow"/>
+      <circle cx="440" cy="60" r="17" fill="#0a1020" stroke="#06b6d4"/>
+      <text x="440" y="55" text-anchor="middle" font-size="16">🌐</text>
+      <text x="440" y="100" class="node-title">主电网</text>
+      <text x="440" y="114" class="node-sub">6G Agent 内嵌</text>
+      <rect x="427" y="40" width="26" height="9" fill="#8b5cf6" rx="2"/>
+      <text x="440" y="47" class="ai-badge" fill="#fff">AI</text>
+    </g>
+    
+    <!-- 光伏 -->
+    <g id="tSun">
+      <circle cx="70" cy="60" r="26" fill="none" stroke="#f59e0b" stroke-width="2" class="glow"/>
+      <circle cx="70" cy="60" r="17" fill="#0a1020" stroke="#f59e0b"/>
+      <text x="70" y="55" text-anchor="middle" font-size="16">☀️</text>
+      <text x="70" y="100" class="node-title">光伏阵列</text>
+      <text x="70" y="114" class="node-sub">MPPT 5kW</text>
+      <rect x="57" y="40" width="26" height="9" fill="#8b5cf6" rx="2"/>
+      <text x="70" y="47" class="ai-badge" fill="#fff">AI</text>
+    </g>
+    
+    <!-- 储能 -->
+    <g id="tBat">
+      <circle cx="70" cy="230" r="26" fill="none" stroke="#10b981" stroke-width="2" class="glow"/>
+      <circle cx="70" cy="230" r="17" fill="#0a1020" stroke="#10b981"/>
+      <text x="70" y="225" text-anchor="middle" font-size="16">🔋</text>
+      <text x="70" y="270" class="node-title">储能系统</text>
+      <text x="70" y="284" class="node-sub">Li-ion 50kWh</text>
+      <rect x="57" y="210" width="26" height="9" fill="#8b5cf6" rx="2"/>
+      <text x="70" y="217" class="ai-badge" fill="#fff">AI</text>
+    </g>
+    
+    <!-- 负荷 -->
+    <g id="tLd">
+      <circle cx="440" cy="230" r="26" fill="none" stroke="#3b82f6" stroke-width="2" class="glow"/>
+      <circle cx="440" cy="230" r="17" fill="#0a1020" stroke="#3b82f6"/>
+      <text x="440" y="225" text-anchor="middle" font-size="16">🏢</text>
+      <text x="440" y="270" class="node-title">园区负荷</text>
+      <text x="440" y="284" class="node-sub">3.5kW 额定</text>
+      <rect x="427" y="210" width="26" height="9" fill="#8b5cf6" rx="2"/>
+      <text x="440" y="217" class="ai-badge" fill="#fff">AI</text>
+    </g>
+    
+    <!-- EMS -->
+    <g id="tEMS">
+      <circle cx="255" cy="145" r="32" fill="none" stroke="#8b5cf6" stroke-width="2.5" class="glow"/>
+      <circle cx="255" cy="145" r="22" fill="rgba(139,92,246,.15)" stroke="#8b5cf6"/>
+      <text x="255" y="140" text-anchor="middle" font-size="18">🧠</text>
+      <text x="255" y="192" class="node-title">智网守护 EMS</text>
+      <text x="255" y="206" class="node-sub">6G 内生智能核心</text>
+    </g>
+    
+    <!-- 6G基站 -->
+    <g id="t6G">
+      <circle cx="255" cy="335" r="22" fill="none" stroke="#06b6d4" stroke-width="2" class="glow"/>
+      <circle cx="255" cy="335" r="13" fill="rgba(6,182,212,.1)" stroke="#06b6d4"/>
+      <text x="255" y="330" text-anchor="middle" font-size="14">📡</text>
+      <text x="255" y="370" class="node-title">6G基站</text>
+      <text x="255" y="380" class="node-sub">通感算智融合 · URLLC</text>
+    </g>
+
+    <!-- NTN卫星（空天地一体） -->
+    <g id="tSAT">
+      <circle cx="255" cy="36" r="16" fill="none" stroke="#22d3ee" stroke-width="1.5" class="glow"/>
+      <circle cx="255" cy="36" r="10" fill="#0a1020" stroke="#22d3ee"/>
+      <text x="255" y="41" text-anchor="middle" font-size="11">🛰️</text>
+      <text x="288" y="33" class="node-sub" fill="#22d3ee">NTN低轨卫星</text>
+      <text x="288" y="46" class="node-sub" fill="#7d8ba8">空天地一体 · 备份链路</text>
+    </g>
+
+    <!-- 连接线 -->
+    <line id="fPV" x1="96" y1="60" x2="225" y2="132" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4 4" class="flow-arrow" opacity="0.6"/>
+    <line id="fGR" x1="414" y1="60" x2="285" y2="132" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="4 4" class="flow-arrow" opacity="0.6"/>
+    <line id="fST" x1="230" y1="165" x2="96" y2="222" stroke="#10b981" stroke-width="2.5" stroke-dasharray="4 4" class="flow-arrow" opacity="0.6"/>
+    <line id="fLD" x1="280" y1="165" x2="414" y2="222" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 4" class="flow-arrow" opacity="0.6"/>
+
+    <!-- 6G通信链路：EMS ↔ 基站（流动虚线 + 数据包） -->
+    <line id="lnk6g" class="sixg-flow" x1="255" y1="177" x2="255" y2="313" stroke="#8b5cf6" stroke-width="1.6"/>
+    <text x="262" y="240" class="node-sub" fill="#8b5cf6">6G通感 · URLLC 0.8ms</text>
+    <!-- 上行数据包（感知数据 → 基站） -->
+    <circle r="3" fill="#06b6d4"><animateMotion dur="1.2s" repeatCount="indefinite" path="M255,180 L255,312"/></circle>
+    <circle r="2" fill="#22d3ee" opacity="0.8"><animateMotion dur="1.2s" begin="0.4s" repeatCount="indefinite" path="M255,180 L255,312"/></circle>
+    <!-- 下行数据包（AI决策指令 → EMS） -->
+    <circle r="3" fill="#8b5cf6"><animateMotion dur="1.2s" begin="0.6s" repeatCount="indefinite" path="M255,312 L255,180"/></circle>
+
+    <!-- 卫星链路：NTN ↔ 基站（弧线绕过EMS） -->
+    <path id="lnkSAT" d="M 268 50 Q 380 200 273 318" fill="none" stroke="#22d3ee" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.55" class="sixg-flow"/>
+    <text x="360" y="180" class="node-sub" fill="#22d3ee" transform="rotate(-62 360 180)">NTN馈电链路</text>
+    <circle r="2.2" fill="#a5f3fc"><animateMotion dur="2.6s" repeatCount="indefinite" path="M 268 50 Q 380 200 273 318"/></circle>
+    <circle r="2.2" fill="#67e8f9"><animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite" path="M 273 318 Q 380 200 268 50"/></circle>
+
+    <!-- 标注 -->
+    <text x="70" y="315" text-anchor="middle" fill="#7d8ba8" font-size="10">▲ 储能 ▲</text>
+    <text x="440" y="315" text-anchor="middle" fill="#7d8ba8" font-size="10">▼ 负荷 ▼</text>
+  `;
+}
+function updateTopo() {
+  // AI开关影响节点发光
+  const color = S.aiOn ? '#8b5cf6' : '#555';
+  document.querySelectorAll('.glow').forEach(el => el.style.color = S.aiOn ? '' : '#555');
+  
+  // 能量流动画
+  const fPV = document.getElementById('fPV');
+  fPV.style.opacity = 0.3 + Math.min(1, S.pv / 5) * 0.7;
+  
+  const fGR = document.getElementById('fGR');
+  if (S.grPow > 0) { fGR.setAttribute('x1','414'); fGR.setAttribute('y1','60'); fGR.setAttribute('x2','285'); fGR.setAttribute('y2','132'); fGR.style.stroke='#06b6d4'; }
+  else if (S.grPow < 0) { fGR.setAttribute('x1','285'); fGR.setAttribute('y1','132'); fGR.setAttribute('x2','414'); fGR.setAttribute('y2','60'); fGR.style.stroke='#f59e0b'; }
+  fGR.style.opacity = 0.3 + Math.min(1, Math.abs(S.grPow)/2)*0.7;
+  
+  const fST = document.getElementById('fST');
+  if (S.stPow < 0) { fST.setAttribute('x1','230'); fST.setAttribute('y1','165'); fST.setAttribute('x2','96'); fST.setAttribute('y2','222'); fST.style.stroke='#10b981'; }
+  else { fST.setAttribute('x1','96'); fST.setAttribute('y1','222'); fST.setAttribute('x2','230'); fST.setAttribute('y2','165'); fST.style.stroke='#f59e0b'; }
+  fST.style.opacity = 0.3 + Math.min(1, Math.abs(S.stPow)/3)*0.7;
+  
+  const fLD = document.getElementById('fLD');
+  fLD.style.opacity = 0.3 + Math.min(1, S.load / 5) * 0.7;
+  
+  // 节点颜色
+  const nodes = { tGrid: S.scn==='gfault'?'#ef4444':'#06b6d4',
+                  tSun: S.scn==='pv'?'#ef4444':'#f59e0b',
+                  tBat: S.soc<20?'#ef4444':S.soc>95?'#f59e0b':'#10b981',
+                  tLd: S.scn==='overload'?'#ef4444':'#3b82f6' };
+  Object.entries(nodes).forEach(([id, col]) => {
+    const g = document.getElementById(id);
+    if (g) g.querySelectorAll('circle').forEach((c,i) => { if (i%2===0) c.setAttribute('stroke', col); });
+  });
+  document.getElementById('tEMS').querySelectorAll('circle').forEach(c => c.setAttribute('stroke', S.aiOn?'#8b5cf6':'#555'));
+}
+
+// ====== Agent ======
+function updateAgents() {
+  document.getElementById('aSun').textContent = `MPPT追踪 · 发电${S.pv.toFixed(1)}kW`;
+  const stTxt = S.stPow > 0.2 ? `放电${S.stPow.toFixed(1)}kW · SOC ${S.soc.toFixed(0)}%` : S.stPow < -0.2 ? `充电${(-S.stPow).toFixed(1)}kW · SOC ${S.soc.toFixed(0)}%` : `待机 · SOC ${S.soc.toFixed(0)}%`;
+  document.getElementById('aBat').textContent = stTxt;
+  document.getElementById('aLd').textContent = `总负荷${S.load.toFixed(1)}kW · 需求响应待命`;
+  document.getElementById('aGr').textContent = S.scn==='gfault'?'孤岛 · 脱网':(S.grPow>0?`并网 · 上网${S.grPow.toFixed(1)}kW`:S.grPow<0?`并网 · 购电${(-S.grPow).toFixed(1)}kW`:`并网 · 平衡`);
+  document.getElementById('aSec').textContent = S.scn==='unauth'?'已隔离异常设备':S.aiOn?'动态防护 · 无威胁':'传统防火墙模式';
+  const nlat = 0.6+Math.random()*0.4;
+  document.getElementById('aNw').textContent = (S.aiOn&&S.subs.ec)?`6G URLLC · 时延${nlat.toFixed(1)}ms · 通感算智`:`4G回退 · 时延${(nlat*6).toFixed(0)}ms · 无边缘算力`;
+}
+
+// ====== 图表 ======
+const ctx = {};
+function initCharts() {
+  ['cmp','v','p','l'].forEach(id => ctx[id] = document.getElementById(id+'Chart').getContext('2d'));
+}
+function drawOne(c, datasets, opts={}) {
+  // 过滤NaN/undefined
+  datasets = datasets.filter(d => d.data && d.data.length >= 2);
+  if (datasets.length === 0) return;
+  const cv = c.canvas;
+  if (!cv.parentElement) return;
+  cv.width = cv.parentElement.clientWidth - 20;
+  cv.height = 170;
+  const w = cv.width, h = cv.height;
+  if (w < 10 || h < 10) return;
+  c.clearRect(0,0,w,h);
+  c.fillStyle = 'rgba(21,28,46,.5)';
+  c.fillRect(0,0,w,h);
+
+  // 网格
+  c.strokeStyle = 'rgba(38,51,77,.5)';
+  c.lineWidth = 0.5;
+  for (let i=0;i<=4;i++) { c.beginPath(); c.moveTo(0,h/4*i); c.lineTo(w,h/4*i); c.stroke(); }
+  for (let i=0;i<=6;i++) { c.beginPath(); c.moveTo(w/6*i,0); c.lineTo(w/6*i,h); c.stroke(); }
+
+  // 参考线（对比）
+  if (opts.refLine) {
+    c.strokeStyle = 'rgba(125,139,168,.5)';
+    c.setLineDash([6,3]);
+    c.beginPath(); c.moveTo(0, opts.refLine.y); c.lineTo(w, opts.refLine.y); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle = '#7d8ba8'; c.font = '10px Consolas';
+    c.fillText(opts.refLine.label, 4, opts.refLine.y - 3);
+  }
+  if (opts.warn) {
+    c.strokeStyle = opts.warn.color;
+    c.setLineDash([4,3]);
+    c.beginPath(); c.moveTo(0, opts.warn.y); c.lineTo(w, opts.warn.y); c.stroke();
+    c.setLineDash([]);
+  }
+
+  // 计算范围
+  let all = []; datasets.forEach(d => all = all.concat(d.data));
+  let mn = Math.min(...all), mx = Math.max(...all);
+  const r = mx - mn || 1;
+  mn -= r*0.12; mx += r*0.12;
+
+  // Y轴
+  c.fillStyle = '#7d8ba8'; c.font = '10px Consolas';
+  for (let i=0;i<=4;i++) {
+    const yv = mx - (mx-mn)/4*i;
+    c.fillText(yv.toFixed(1), 4, h/4*i + 10);
+  }
+
+  datasets.forEach(d => {
+    if (d.data.length < 2) return;
+    if (d.fill) {
+      c.beginPath();
+      for (let i=0;i<d.data.length;i++) {
+        const x = (w/(d.data.length-1))*i;
+        const y = h - ((d.data[i]-mn)/(mx-mn))*h;
+        if (i===0) c.moveTo(x,y); else c.lineTo(x,y);
+      }
+      c.lineTo(w,h); c.lineTo(0,h); c.closePath();
+      c.fillStyle = d.color.replace(')',',.15)').replace('rgb','rgba');
+      c.fill();
+    }
+    c.beginPath();
+    if (d.dashed) c.setLineDash([5,4]);
+    c.strokeStyle = d.color;
+    c.lineWidth = d.width || 2;
+    for (let i=0;i<d.data.length;i++) {
+      const x = (w/(d.data.length-1))*i;
+      const y = h - ((d.data[i]-mn)/(mx-mn))*h;
+      if (i===0) c.moveTo(x,y); else c.lineTo(x,y);
+    }
+    c.stroke();
+    c.setLineDash([]);
+    // 末点
+    if (d.data.length) {
+      const last = d.data[d.data.length-1];
+      const lx = w - 3;
+      const ly = h - ((last-mn)/(mx-mn))*h;
+      c.beginPath(); c.arc(lx, ly, 3, 0, Math.PI*2);
+      c.fillStyle = d.color; c.fill();
+    }
+  });
+
+  // 差异标注
+  if (opts.showDiff && datasets.length >= 2) {
+    const d0 = datasets[0].data; const d1 = datasets[1].data;
+    if (d0.length && d1.length) {
+      const diff = Math.abs(d0[d0.length-1] - d1[d1.length-1]);
+      if (!isNaN(diff)) {
+        c.fillStyle = '#f59e0b'; c.font = 'bold 11px Consolas';
+        c.fillText('Δ = ' + diff.toFixed(2) + 'kW', w - 80, 16);
+      }
+    }
+  }
+
+  // ===== 开关切换竖线标注（对比曲线图） =====
+  if (opts.drawSwitchMarkers && S.switchEvents && datasets[0]) {
+    const N = datasets[0].data.length;
+    S.switchEvents.forEach(evt => {
+      if (evt.idx < 2 || evt.idx >= N - 1) return;
+      const x = (w / (N-1)) * evt.idx;
+      const col = evt.dir === -1 ? '#ef4444' : '#10b981';
+      // 竖线
+      c.setLineDash([4,3]);
+      c.beginPath();
+      c.moveTo(x, 4); c.lineTo(x, h - 4);
+      c.strokeStyle = col; c.lineWidth = 2;
+      c.stroke();
+      c.setLineDash([]);
+      // 小圆点
+      c.beginPath();
+      c.arc(x, 8, 4, 0, Math.PI*2);
+      c.fillStyle = col; c.fill();
+      // 标签
+      c.font = 'bold 10px "Microsoft YaHei", Consolas';
+      const label = (evt.dir === -1 ? '❌关 ' : '✅开 ') + evt.name;
+      const tw = Math.min(c.measureText(label).width + 8, 95);
+      const bx = Math.max(2, Math.min(w - tw - 2, x - tw/2));
+      c.fillStyle = col;
+      c.globalAlpha = 0.85;
+      c.fillRect(bx, h - 28, tw, 18);
+      c.globalAlpha = 1;
+      c.fillStyle = '#fff';
+      c.fillText(label, bx + 4, h - 15);
+    });
+  }
+}
+function drawAll() {
+  drawOne(ctx.cmp, [
+    { data: S.c.aiCmp, color: 'rgb(16,185,129)', fill: true, width: 2.5 },
+    { data: S.c.noAICmp, color: 'rgb(239,68,68)', fill: false, dashed: true, width: 2 },
+  ], { showDiff: true, drawSwitchMarkers: true });
+
+  drawOne(ctx.v, [
+    { data: S.c.v, color: 'rgb(6,182,212)', fill: true },
+  ], { refLine: { y: 220, label:'220V' }, warn: { color:'#ef4444', y: 210 } });
+
+  drawOne(ctx.p, [
+    { data: S.c.pv, color: 'rgb(245,158,11)', fill: false },
+    { data: S.c.load, color: 'rgb(59,130,246)', fill: false },
+    { data: S.c.st, color: 'rgb(16,185,129)', fill: false },
+    { data: S.c.gr, color: 'rgb(6,182,212)', fill: false },
+  ]);
+
+  drawOne(ctx.l, [
+    { data: S.c.load, color: 'rgb(59,130,246)', fill: true },
+    { data: S.c.pred, color: 'rgb(139,92,246)', fill: false, dashed: true },
+  ]);
+}
+
+// ====== 交互 ======
+function toggleRun() { S.run = !S.run; document.getElementById('btnRun').textContent = S.run ? '⏸ 暂停' : '▶ 继续'; }
+function setSpeed(s) { S.speed = s; S.run = s > 0; document.getElementById('btnRun').textContent = S.run ? '⏸ 暂停' : '▶ 继续'; addLog('i', `⚡ 仿真速度: ${s}x`); }
+function switchTab(el, id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tabbody').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on'); document.getElementById(id).classList.add('on');
+  setTimeout(drawAll, 50);
+}
+
+// ====== 日志 ======
+function addLog(level, msg) {
+  const c = document.getElementById('alog');
+  const d = document.createElement('div');
+  d.className = 'alog-item ' + level;
+  const t = new Date().toTimeString().slice(0,8);
+  d.innerHTML = `<div class="tm">[${t}]</div><div class="mg">${msg}</div>`;
+  c.insertBefore(d, c.firstChild);
+  while (c.children.length > 60) c.removeChild(c.lastChild);
+}
+function clearLog() { document.getElementById('alog').innerHTML = ''; }
+
+// ====== 启动 ======
+window.addEventListener('DOMContentLoaded', () => {
+  buildTopo();
+  initCharts();
+  
+  // 初始化曲线
+  for (let i=0;i<30;i++) {
+    S.c.pv.push(3.5+(Math.random()-0.5)*0.4);
+    S.c.load.push(2.4+(Math.random()-0.5)*0.4);
+    S.c.v.push(220.5+(Math.random()-0.5)*0.6);
+    S.c.f.push(50.02+(Math.random()-0.5)*0.06);
+    S.c.st.push(-1.2+(Math.random()-0.5)*0.3);
+    S.c.gr.push(1.2+(Math.random()-0.5)*0.3);
+    S.c.pred.push(2.4);
+    S.c.aiCmp.push(1.0+(Math.random()-0.5)*0.3);
+    S.c.noAICmp.push(0.6+(Math.random()-0.5)*1.0);
+  }
+  
+  addLog('i','🚀 智网守护系统启动成功');
+  addLog('i','📡 6G URLLC切片接入 · 时延0.8ms · 通感算智融合');
+  addLog('i','🛰️ NTN空天地一体：卫星备份链路锁定');
+  addLog('i','🧠 6个内生Agent经6G网络完成注册');
+  addLog('s','✅ 进入稳态运行模式');
+
+  update6G(); // 初始渲染6G能力带
+  setInterval(tick, 1000);
+  setInterval(drawAll, 800);
+  window.addEventListener('resize', drawAll);
+});
+
+// ====== 维修副画面：机器人/无人机协同抢修 ======
+let repairBusy = false;
+const RFAULT = {
+  overload:{name:'变压器过载', fix:'散热器过热 · 更换冷却风扇模块'},
+  gfault:  {name:'主电网失电', fix:'进线开关拒动 · 复位更换继电器'},
+  short:   {name:'线路短路',   fix:'L3绝缘击穿 · 重做电缆终端头'},
+  unauth:  {name:'异常接入',   fix:'违规终端 · 物理拆除并封存取证'},
+  pv:      {name:'光伏骤降',   fix:'MPPT板卡故障 · 更换控制板卡'},
+};
+function openRepair() {
+  document.getElementById('repairMask').classList.add('on');
+  resetRepairScene();
+  const f = RFAULT[S.scn];
+  const fp = document.getElementById('rpFaultPill');
+  if (f) {
+    fp.textContent = '🔴 故障：' + f.name; fp.style.color = 'var(--red)'; fp.style.borderColor = 'var(--red)';
+    rlog(`📡 收到主画面AI抢修工单：${f.name}`);
+    rlog('🤖🚁 机器人RX-01 与 无人机UAV-02 已就位，自动派遣中…');
+    setPhase('待派遣');
+    setTimeout(() => { if (!repairBusy && document.getElementById('repairMask').classList.contains('on')) dispatchRepair(); }, 800);
+  } else {
+    fp.textContent = '🟢 故障：无'; fp.style.color = 'var(--green)'; fp.style.borderColor = 'var(--green)';
+    rlog('✅ 当前无故障工单 · 可点击"派遣抢修"执行巡检演示');
+    setPhase('待命');
+  }
+}
+function closeRepair() { document.getElementById('repairMask').classList.remove('on'); }
+function setPhase(t) { document.getElementById('rpPhasePill').textContent = '阶段：' + t; }
+function rlog(t) {
+  const d = document.getElementById('repairLog');
+  const div = document.createElement('div'); div.textContent = t;
+  d.prepend(div);
+}
+function resetRepairScene() {
+  repairBusy = false;
+  const bot = document.getElementById('rBot'), drone = document.getElementById('rDrone');
+  bot.style.transition = 'none'; drone.style.transition = 'none';
+  bot.style.transform = 'translate(95px,0)';
+  drone.style.transform = 'translate(215px,248px)';
+  bot.classList.remove('working');
+  const dev = document.getElementById('rDev');
+  const hasFault = !!RFAULT[S.scn];
+  dev.classList.toggle('fixed', !hasFault);
+  document.getElementById('devBody').classList.toggle('rv-fault-glow', hasFault);
+  document.getElementById('devBody').setAttribute('stroke', hasFault ? '#ef4444' : '#10b981');
+  const tag = document.getElementById('devTag');
+  tag.textContent = hasFault ? '● 故障' : '● 正常';
+  tag.setAttribute('fill', hasFault ? '#ef4444' : '#10b981');
+  document.getElementById('weldTip').style.display = 'none';
+  document.getElementById('rpBar').style.width = '0';
+  document.getElementById('rpPct').textContent = '0%';
+  document.getElementById('rpStageTxt').textContent = '等待派遣…';
+  document.getElementById('repairLog').innerHTML = '';
+  bot.getBoundingClientRect(); // 强制回流，恢复过渡动画
+  bot.style.transition = ''; drone.style.transition = '';
+}
+function dispatchRepair() {
+  if (repairBusy) return;
+  repairBusy = true;
+  const f = RFAULT[S.scn];
+  const patrol = !f;
+  const bot = document.getElementById('rBot'), drone = document.getElementById('rDrone');
+  setPhase(patrol ? '巡检出动' : '紧急出动');
+  rlog(patrol ? '🚁 无人机起飞 · 例行巡飞侦察' : '🚁 无人机先期起飞 · 空中侦察故障点');
+  rlog(patrol ? '🤖 机器人出库 · 执行园区巡检' : '🤖 机器人出库 · 驶向故障设备（6G通感路径规划）');
+  drone.style.transform = patrol ? 'translate(430px,115px)' : 'translate(578px,135px)';
+  setTimeout(() => { bot.style.transform = patrol ? 'translate(430px,0)' : 'translate(540px,0)'; }, 400);
+
+  setTimeout(() => {
+    if (patrol) {
+      setPhase('巡检中');
+      rlog('📷 无人机红外扫描：设备温度分布正常');
+      rlog('🤖 机器人表计核读：220.5V · 绝缘正常 · 无异常');
+      setTimeout(() => {
+        setPhase('返航');
+        bot.style.transform = 'translate(95px,0)';
+        drone.style.transform = 'translate(215px,248px)';
+        setTimeout(() => { rlog('✅ 巡检完成 · 返回待命'); setPhase('待命'); repairBusy = false; }, 3700);
+      }, 2000);
+      return;
+    }
+    // 到达 → 开始抢修
+    bot.classList.add('working');
+    setPhase('现场抢修');
+    rlog('🚁 无人机悬停故障点上方 · 红外热成像实时回传');
+    rlog('🤖 机器人RX-01到达 · 机械臂展开');
+    const steps = [
+      [15, '🔍 故障点定位：' + f.fix],
+      [38, '🔧 开始作业：' + f.fix],
+      [62, '📡 6G AR远程专家指导 · 更换故障模块'],
+      [85, '⚡ 绝缘耐压测试 · 通过'],
+      [100, '✅ 抢修完成 · 设备自检通过'],
+    ];
+    let p = 0, si = 0;
+    const bar = document.getElementById('rpBar'), pct = document.getElementById('rpPct'), st = document.getElementById('rpStageTxt');
+    const iv = setInterval(() => {
+      p += 2;
+      bar.style.width = p + '%'; pct.textContent = p + '%';
+      while (si < steps.length && p >= steps[si][0]) {
+        st.textContent = steps[si][1];
+        if (si === 1) document.getElementById('weldTip').style.display = '';
+        rlog('🤖 ' + steps[si][1]);
+        si++;
+      }
+      if (p >= 100) { clearInterval(iv); finishRepair(); }
+    }, 130);
+  }, 4300);
+}
+function finishRepair() {
+  const dev = document.getElementById('rDev');
+  dev.classList.add('fixed');
+  document.getElementById('devBody').classList.remove('rv-fault-glow');
+  document.getElementById('devBody').setAttribute('stroke', '#10b981');
+  const tag = document.getElementById('devTag');
+  tag.textContent = '● 正常'; tag.setAttribute('fill', '#10b981');
+  document.getElementById('weldTip').style.display = 'none';
+  document.getElementById('rBot').classList.remove('working');
+  setPhase('撤收返航');
+  rlog('🤖🚁 任务完成 · 设备恢复绿灯 · 返航回库');
+  document.getElementById('rBot').style.transform = 'translate(95px,0)';
+  document.getElementById('rDrone').style.transform = 'translate(215px,248px)';
+  setTimeout(() => {
+    setPhase('待命');
+    // 同步主画面：清除故障 + 恢复运行
+    S.scn = 'normal'; S.pv = 3.8; S.load = 2.6; S.v = 220.5; S.grPow = 1.2;
+    if (!S.run) { S.run = true; document.getElementById('btnRun').textContent = '⏸ 暂停'; }
+    addLog('s', '🤖 机器人RX-01完成现场抢修 · 故障已清除，恢复稳态');
+    addLog('s', '🚁 无人机UAV-02检修航拍已归档至数字孪生');
+    updateDot(); updateAIDec();
+    repairBusy = false;
+  }, 3800);
+}
+
+// 给flash层添加css类支持
+const styleExtra = document.createElement('style');
+styleExtra.textContent = '.flash{animation:flashOnce .6s} @keyframes flashOnce{0%{color:var(--red)}100%{color:var(--cyan)}}';
+document.head.appendChild(styleExtra);
+</script>
+</body>
+</html>
