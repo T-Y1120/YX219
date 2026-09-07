@@ -706,7 +706,7 @@ body {
         <div class="switch-row on" id="rowSS">
           <div>
             <div class="s-name"><span class="s-icon">🛡️</span>6G网络切片安全</div>
-            <div class="s-desc">内生安全 · 动态防护 · 异常接入隔离</div>
+            <div class="s-desc">内生安全 · 动态防护 · 非法入侵隔离</div>
           </div>
           <label class="switch"><input type="checkbox" checked onchange="askPwd('ss', this)"><span class="slider"></span></label>
         </div>
@@ -800,7 +800,7 @@ body {
         <button class="scene-btn" onclick="scn('pv')">☁️ 光伏骤降<div class="sd">测试储能+调度AI</div></button>
         <button class="scene-btn" onclick="scn('gfault')">⚠ 主电网故障<div class="sd">测试孤岛切换+自愈</div></button>
         <button class="scene-btn" onclick="scn('short')">⚡ 短路故障<div class="sd">测试快速跳闸+柔性转供</div></button>
-        <button class="scene-btn" onclick="scn('unauth')">🛡️ 异常接入<div class="sd">测试内生安全隔离</div></button>
+        <button class="scene-btn" onclick="scn('unauth')">🛡️ 非法入侵<div class="sd">测试内生安全隔离</div></button>
         <button class="scene-btn" onclick="scn('normal')">✅ 恢复常态<div class="sd">回归稳态运行</div></button>
         <button class="scene-btn" style="grid-column:1/-1;border-color:var(--purple);background:rgba(139,92,246,.12)" onclick="openRepair()">🤖🚁 打开维修副画面<div class="sd" style="color:var(--purple)">机器人+无人机协同抢修现场 · 修完自动恢复主画面</div></button>
       </div>
@@ -1059,7 +1059,7 @@ function scn(t) {
       }
       updateAIDec(); break;
     case 'unauth':
-      addLog('c','🛡️ 检测到非授权设备接入！MAC:**:**:**:4A:B2:91');
+      addLog('c','🛡️ 检测到非法入侵设备！MAC:**:**:**:4A:B2:91');
       if (S.aiOn && S.subs.ss) {
         setTimeout(() => addLog('s','🧠 6G内生安全：端口自动隔离 + 网络切片封禁 + 告警推送'), 500);
       }
@@ -1449,7 +1449,7 @@ function buildTopo() {
       <circle cx="440" cy="60" r="26" fill="none" stroke="#06b6d4" stroke-width="2" class="glow"/>
       <circle cx="440" cy="60" r="17" fill="#0a1020" stroke="#06b6d4"/>
       <text x="440" y="55" text-anchor="middle" font-size="16">🌐</text>
-      <text x="440" y="100" class="node-title">主电网</text>
+      <text x="440" y="100" class="node-title"><tspan fill="#06b6d4">场景3</tspan> 主电网</text>
       <text x="440" y="114" class="node-sub">6G Agent 内嵌</text>
       <rect x="427" y="40" width="26" height="9" fill="#8b5cf6" rx="2"/>
       <text x="440" y="47" class="ai-badge" fill="#fff">AI</text>
@@ -1460,7 +1460,7 @@ function buildTopo() {
       <circle cx="70" cy="60" r="26" fill="none" stroke="#f59e0b" stroke-width="2" class="glow"/>
       <circle cx="70" cy="60" r="17" fill="#0a1020" stroke="#f59e0b"/>
       <text x="70" y="55" text-anchor="middle" font-size="16">☀️</text>
-      <text x="70" y="100" class="node-title">光伏阵列</text>
+      <text x="70" y="100" class="node-title"><tspan fill="#f59e0b">场景1</tspan> 光伏阵列</text>
       <text x="70" y="114" class="node-sub">MPPT 5kW</text>
       <rect x="57" y="40" width="26" height="9" fill="#8b5cf6" rx="2"/>
       <text x="70" y="47" class="ai-badge" fill="#fff">AI</text>
@@ -1471,7 +1471,7 @@ function buildTopo() {
       <circle cx="70" cy="230" r="26" fill="none" stroke="#10b981" stroke-width="2" class="glow"/>
       <circle cx="70" cy="230" r="17" fill="#0a1020" stroke="#10b981"/>
       <text x="70" y="225" text-anchor="middle" font-size="16">🔋</text>
-      <text x="70" y="270" class="node-title">储能系统</text>
+      <text x="70" y="270" class="node-title"><tspan fill="#10b981">场景2</tspan> 储能系统</text>
       <text x="70" y="284" class="node-sub">Li-ion 50kWh</text>
       <rect x="57" y="210" width="26" height="9" fill="#8b5cf6" rx="2"/>
       <text x="70" y="217" class="ai-badge" fill="#fff">AI</text>
@@ -1482,7 +1482,7 @@ function buildTopo() {
       <circle cx="440" cy="230" r="26" fill="none" stroke="#3b82f6" stroke-width="2" class="glow"/>
       <circle cx="440" cy="230" r="17" fill="#0a1020" stroke="#3b82f6"/>
       <text x="440" y="225" text-anchor="middle" font-size="16">🏢</text>
-      <text x="440" y="270" class="node-title">园区负荷</text>
+      <text x="440" y="270" class="node-title"><tspan fill="#3b82f6">场景4</tspan> 园区负荷</text>
       <text x="440" y="284" class="node-sub">3.5kW 额定</text>
       <rect x="427" y="210" width="26" height="9" fill="#8b5cf6" rx="2"/>
       <text x="440" y="217" class="ai-badge" fill="#fff">AI</text>
@@ -1800,7 +1800,7 @@ const RFAULT = {
   overload:{name:'变压器过载', fix:'散热器过热 · 更换冷却风扇模块'},
   gfault:  {name:'主电网失电', fix:'进线开关拒动 · 复位更换继电器'},
   short:   {name:'线路短路',   fix:'L3绝缘击穿 · 重做电缆终端头'},
-  unauth:  {name:'异常接入',   fix:'违规终端 · 物理拆除并封存取证'},
+  unauth:  {name:'非法入侵',   fix:'违规终端 · 物理拆除并封存取证'},
   pv:      {name:'光伏骤降',   fix:'MPPT板卡故障 · 更换控制板卡'},
 };
 function openRepair() {
