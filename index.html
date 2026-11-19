@@ -173,6 +173,9 @@ img{max-width:100%;display:block}
 
 /* ===== Pain ===== */
 .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pain-grid.four{grid-template-columns:repeat(4,1fr)}
+@media (max-width:1100px){.pain-grid.four{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:760px){.pain-grid.four{grid-template-columns:1fr}}
 .pain-card{
   border-top:2px solid var(--ink);padding:22px 4px 0;position:relative;
 }
@@ -181,6 +184,7 @@ img{max-width:100%;display:block}
 .pain-card h4{font-size:15.5px;margin:12px 0 7px}
 .pain-card p{font-size:13px;color:var(--ink-3);line-height:1.75}
 .pain-card .p-src{font-size:10.5px;color:var(--ink-3);margin-top:10px;letter-spacing:.02em}
+.pain-scope{font-size:11.5px;color:var(--ink-3);line-height:1.75;margin-top:14px;max-width:900px}
 .pain-quote{
   margin-top:34px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;
   background:var(--paper-2);border:1px solid var(--line-soft);border-left:3px solid var(--red);
@@ -428,6 +432,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .conn-state.bad{background:var(--red-soft);color:var(--red)}
 
 /* ===== Report ===== */
+.report-tools{display:flex;gap:8px;flex-wrap:wrap;margin:-24px 0 12px}
+.report-note{font-size:11px;color:var(--ink-3);line-height:1.7;margin:0 0 24px;max-width:860px}
 .report-empty{
   border:1px dashed var(--line);border-radius:4px;padding:clamp(36px,6vw,64px);text-align:center;background:var(--paper-2);
 }
@@ -911,8 +917,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button data-nav="workshop">智能工坊</button>
       <button data-nav="report">传播方案</button>
       <button data-nav="videoforge">视频分镜</button>
-      <button data-nav="architecture">智能体架构</button>
-      <button data-nav="about">作品说明</button>
     </nav>
     <div class="nav-status" id="navStatus" title="当前推理引擎">
       <i></i><span id="navStatusText">本地仿真引擎</span>
@@ -927,12 +931,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     <div class="hero-grid">
       <div>
         <div class="hero-eyebrow">
-          <span class="tag-line red">2026 山东省首届大学生 AI 大模型创新传播大赛</span>
-          <span class="tag-line">赛道三 · AI 传播工具创新</span>
-        </div>
-        <div class="hero-focus">
-          <i>聚焦决策环节</i>
-          <span>第 3 步 · <b>首案决策</b>：从产地事实到第一版可执行传播方案</span>
+          <span class="tag-line red">山东 · 县域地标农产品</span>
+          <span class="tag-line">用户：县域合作社 / 县级融媒</span>
+          <span class="tag-line">嵌入环节：首案决策</span>
         </div>
         <h1>
           <span class="line">把一座山的物产，</span>
@@ -948,7 +949,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
             启动智能体演示
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </button>
-          <button class="btn btn-ghost" data-nav="architecture">查看智能体架构</button>
+          <button class="btn btn-ghost" data-nav="report">查看示例方案</button>
         </div>
         <div class="hero-stats">
           <div class="hero-stat"><b>4<i>个</i></b><span>协同智能体</span></div>
@@ -1023,142 +1024,48 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 </section>
 
 <!-- ================= PAIN ================= -->
-<section class="sec tight" id="pain">
+<section class="sec alt" id="pain">
   <div class="wrap">
     <div class="sec-head reveal">
       <div>
-        <div class="sec-kicker">WHY / 真实痛点</div>
-        <h2 class="sec-title">县域品牌的传播，<em>卡在哪一步？</em></h2>
+        <div class="sec-kicker">PAIN / 行业真实痛点</div>
+        <h2 class="sec-title">不缺好物产，缺的是<em>第一版说法</em></h2>
       </div>
-      <p class="sec-desc">
-        山东拥有数量可观的地理标志农产品，但“产地有名、品牌无声”。缺的不是好产品，
-        而是把产地优势翻译成平台语言的<b>决策能力</b>。
-      </p>
+      <p class="sec-desc">县域地标农产品做传播，常见四个断点。它们最后都收在同一个决策环节上：第一版方案怎么定。</p>
     </div>
-    <div class="anchor reveal">
-      <div class="anchor-head">
-        <span class="a-kicker">FOCUS / 决策环节</span>
-        <h3>一条传播链路有 6 步，本工具只做<em>第 3 步：首案决策</em></h3>
-      </div>
-      <p class="anchor-sub">
-        选品、投流、拍摄、售后都不在本工具范围内。我们只锚定县域团队最容易卡死的那一环——
-        把手里零散的产地事实，变成第一版<b>可以直接派工</b>的传播方案：谁来说、说什么、在哪说、怎么排期、合不合规。
-      </p>
-      <div class="dec-chain">
-        <div class="dec-step">
-          <div class="ds-n">链路 01</div><h5>选品定位</h5><p>卖哪一款</p>
-        </div>
-        <div class="dec-step">
-          <div class="ds-n">链路 02</div><h5>受众洞察</h5><p>说给谁听</p>
-        </div>
-        <div class="dec-step is-core">
-          <div class="ds-n">链路 03 · 聚焦</div><h5>首案决策</h5><p>说什么 · 在哪说 · 怎么排 · 合不合规</p>
-          <span class="ds-flag">本工具聚焦此环节</span>
-        </div>
-        <div class="dec-step">
-          <div class="ds-n">链路 04</div><h5>内容生产</h5><p>拍片 · 写稿</p>
-        </div>
-        <div class="dec-step">
-          <div class="ds-n">链路 05</div><h5>投放分发</h5><p>投流 · 达人</p>
-        </div>
-        <div class="dec-step">
-          <div class="ds-n">链路 06</div><h5>复盘迭代</h5><p>看数 · 调优</p>
-        </div>
-      </div>
-      <div class="anchor-meta">
-        <div><span>输入</span><p>产品、产区、节令、卖点、预算、目标人群——口语化、不完整</p></div>
-        <div><span>输出</span><p>主张 / 受众 / 四平台矩阵 / 排期 / 预算 / 评分 / 合规清单</p></div>
-        <div><span>验证</span><p>现场换场景、拖预算、点标题、采纳合规项，方案与评分即时重算</p></div>
-      </div>
-      <div class="anchor-note">
-        <b>为什么这一步必须用大模型：</b>输入是口语化的产地信息，输出却要同时满足平台语法、受众心理与广告法约束——
-        规则引擎写不出“霜降后的糖心”这样的句子，纯人工又做不完四个平台的版本。大模型负责生成与改写，规则引擎负责校验与兜底。
-      </div>
-    </div>
-    <div class="pain-grid">
-      <div class="pain-card reveal">
-        <div class="p-num">≤ 5 <small>人</small></div>
-        <h4>一个团队，扛下整个品牌</h4>
-        <p>县域合作社与电商服务站的运营团队通常只有几人，既要做选品、客服，还要写文案、拍视频、投流，专业传播岗位几乎空缺。</p>
-        <div class="p-src">口径说明：县域电商团队规模为项目组访谈与公开报道归纳的典型区间</div>
-      </div>
-      <div class="pain-card reveal">
-        <div class="p-num">4 <small>个平台</small></div>
-        <h4>同一句话，要适配四种语法</h4>
-        <p>抖音要钩子、小红书要体验、视频号要信任、党媒端要权威。把一条文案复制到四个平台，等于四次无效传播。</p>
-        <div class="p-src">平台差异：内容形态、审核尺度、用户意图均不同</div>
-      </div>
-      <div class="pain-card reveal">
-        <div class="p-num">3 <small>类雷区</small></div>
-        <h4>一句“最好吃”，可能就违规</h4>
-        <p>极限词、地理标志使用规范、农产品功效宣称——县域内容最常见的三类合规风险，往往在发布后才被发现，整改成本极高。</p>
-        <div class="p-src">依据：《广告法》《地理标志产品保护规定》及平台社区规范</div>
-      </div>
-    </div>
-    <div class="pain-quote reveal">
-      <q>“我们有好货，却总是写不出让人想转发的那句话。”</q>
-      <span>—— 项目组对县域品牌传播困境的问题定义</span>
-    </div>
-  </div>
-</section>
 
-<!-- ================= AGENTS ================= -->
-<section class="sec alt" id="agents">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div>
-        <div class="sec-kicker">HOW / 解法</div>
-        <h2 class="sec-title">不是“一键生成”，<br>而是四个角色的<em>接力判断</em>。</h2>
+    <div class="pain-grid four">
+      <div class="pain-card reveal">
+        <div class="p-num">01<small>事实没被翻译</small></div>
+        <h4>产地信息散落在包装和朋友圈</h4>
+        <p>气候、品种、采收、检测报告都真实存在，却没有一句能直接被转发、被记住的表达。结果只能讲价格。</p>
+        <div class="p-src">对应模块 · 策略官：主张与故事钩子</div>
       </div>
-      <p class="sec-desc">
-        借鉴真实传播团队的协作分工，将“大模型一次性写稿”拆成四个可解释、可校验、可回滚的智能体环节，
-        每一步都有明确的输入、输出与质量标准。
-      </p>
-    </div>
-    <div class="agent-grid">
-      <div class="agent-card reveal" style="--ac:#B93A2B">
-        <div class="a-idx">AGENT 01</div>
-        <div class="a-en">Strategist</div>
-        <h4>策略官</h4>
-        <p>读取产区、节令与品类事实，划分受众层级，提炼文化母题，收敛出一句能被记住的品牌主张。</p>
-        <div class="a-tags"><span class="a-tag">受众分层</span><span class="a-tag">文化母题</span><span class="a-tag">主张收敛</span></div>
+      <div class="pain-card reveal">
+        <div class="p-num">02<small>一稿投所有平台</small></div>
+        <h4>同一条片子发给四个平台</h4>
+        <p>抖音前 3 秒留不住人，小红书缺体验细节，视频号缺熟人叙事，大众网缺权威口径。四个平台都投，等于都没投透。</p>
+        <div class="p-src">对应模块 · 创意官：四平台内容矩阵</div>
       </div>
-      <div class="agent-card reveal" style="--ac:#A9823F">
-        <div class="a-idx">AGENT 02</div>
-        <div class="a-en">Creative</div>
-        <h4>创意官</h4>
-        <p>按平台语法重写同一主张：抖音给钩子、小红书给体验、视频号给信任、大众网给权威。</p>
-        <div class="a-tags"><span class="a-tag">脚本</span><span class="a-tag">标题</span><span class="a-tag">内容日历</span></div>
+      <div class="pain-card reveal">
+        <div class="p-num">03<small>预算凭感觉切</small></div>
+        <h4>钱分完了，说不清哪笔起作用</h4>
+        <p>投流、内容、达人、活动各占多少，多按往年惯例拍板，没有和人群、平台、周期对齐，事后无法归因。</p>
+        <div class="p-src">对应模块 · 预算引擎：科目与预估</div>
       </div>
-      <div class="agent-card reveal" style="--ac:#2A6A55">
-        <div class="a-idx">AGENT 03</div>
-        <div class="a-en">Compliance</div>
-        <h4>合规官</h4>
-        <p>对全部文案做极限词、地理标志、功效宣称与 AI 生成标识四类扫描，给出可直接替换的修改建议。</p>
-        <div class="a-tags"><span class="a-tag">广告法</span><span class="a-tag">地标规范</span><span class="a-tag">AI 标识</span></div>
-      </div>
-      <div class="agent-card reveal" style="--ac:#23456B">
-        <div class="a-idx">AGENT 04</div>
-        <div class="a-en">Evaluator</div>
-        <h4>评估官</h4>
-        <p>用五维量表给方案打分，预测标题点击差异，指出最短的那块木板，并给出下一轮迭代动作。</p>
-        <div class="a-tags"><span class="a-tag">五维评分</span><span class="a-tag">A/B 预测</span><span class="a-tag">迭代建议</span></div>
+      <div class="pain-card reveal">
+        <div class="p-num">04<small>合规在发布之后</small></div>
+        <h4>极限词与地标用标常被事后提醒</h4>
+        <p>绝对化用语、地理标志用标、食品功效暗示、AI 标识，往往发布后才发现，下架改稿，节令窗口被拖过去。</p>
+        <div class="p-src">对应模块 · 合规官：风险扫描与改法</div>
       </div>
     </div>
-    <div class="value-row">
-      <div class="value-item reveal">
-        <div class="value-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></div>
-        <div><h4>可交互验证</h4><p>现场改预算、换平台、点选标题、修正合规项，评分与方案实时变化，不是静态 PPT。</p></div>
-      </div>
-      <div class="value-item reveal">
-        <div class="value-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 4 3 3-6"/></svg></div>
-        <div><h4>可解释决策</h4><p>每个结论都能追溯到受众证据、平台规则或合规条款，评委可逐条追问。</p></div>
-      </div>
-      <div class="value-item reveal">
-        <div class="value-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
-        <div><h4>可落地交付</h4><p>输出可直接排期执行的脚本、日历、预算与质检清单，而不是“看起来很厉害”的空话。</p></div>
-      </div>
+
+    <div class="pain-quote reveal">
+      <q>四个断点看起来分散，其实都发生在同一处：第一版方案定什么、在哪说、怎么排、合不合规。</q>
+      <span>—— 这就是本工具聚焦的「首案决策」环节</span>
     </div>
+    <p class="pain-scope reveal">适用范围：县域地标农产品，含下方自定义品类。若换成非农商品，第 1 条「产地事实」与第 4 条中的「地理标志用标」需按实际资质重新判断，其余两条仍成立。</p>
   </div>
 </section>
 
@@ -1267,7 +1174,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   <div class="wrap">
     <div class="sec-head reveal">
       <div>
-        <div class="sec-kicker">WORKSHOP / 第 3 步 · 首案决策</div>
+        <div class="sec-kicker">WORKSHOP / 首案决策</div>
         <h2 class="sec-title">现场跑一遍，<em>结果自己会说话</em></h2>
       </div>
       <p class="sec-desc">输入产地事实，四个智能体接力完成这一环节的决策：定主张、分平台、排节奏、查合规、给评分。约 10 秒后可导出方案。</p>
@@ -1363,7 +1270,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
           启动四智能体
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
-        <div class="run-note">说明：本原型内置离线仿真引擎，保证无网络也能完整演示；接入大模型接口后，同一套 Prompt 与校验规则将调用真实模型推理。所有指标为结构化估算，用于验证产品逻辑，不作为真实投放承诺。</div>
+        <div class="run-note">说明：内置离线引擎，无网络也能完整演示；曝光、GMV、ROI 为结构化估算，用于验证产品逻辑，不作为真实投放承诺。</div>
       </div>
 
       <div class="pipeline" id="pipeline">
@@ -1389,6 +1296,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       </div>
       <p class="sec-desc">同一份事实，按平台语法重写四遍；再用五个维度打分、用合规清单兜底。方案支持一键导出 Markdown。</p>
     </div>
+
+    <div class="report-tools reveal">
+      <button class="btn-tiny" id="exportPlan">导出方案（Markdown）</button>
+      <button class="btn-tiny" id="printPage">打印 / 存为 PDF</button>
+      <button class="btn-tiny" id="resetAll">重置演示数据</button>
+    </div>
+    <p class="report-note reveal">数据口径：曝光、GMV、ROI、A/B 点击率均为结构化估算，用于验证决策逻辑，不代表真实投放结果；可按实际投放数据校准权重。</p>
 
     <div class="report-empty" id="reportEmpty">
       <div class="re-icon">
@@ -1469,206 +1383,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   </div>
 </section>
 
-<!-- ================= ARCHITECTURE ================= -->
-<section class="sec" id="architecture">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div>
-        <div class="sec-kicker">ARCHITECTURE / 智能体架构</div>
-        <h2 class="sec-title">四个角色、一份契约、<em>一条可回滚的链路</em></h2>
-      </div>
-      <p class="sec-desc">每个智能体只对一件事负责，输出严格的结构化字段；下游只消费上游的结论，不重复猜测。这让方案可解释、可局部重跑。</p>
-    </div>
-
-    <div class="arch-flow reveal">
-      <div class="af-node accent">
-        <span class="af-k">INPUT</span>
-        <h5>场景参数</h5>
-        <p>产区、节令、品类事实、预算、目标、平台与人群偏好</p>
-        <span class="af-arrow">›</span>
-      </div>
-      <div class="af-node">
-        <span class="af-k">01 · STRATEGIST</span>
-        <h5>策略官</h5>
-        <p>受众分层 / 文化母题 / 一句话主张</p>
-        <span class="af-arrow">›</span>
-      </div>
-      <div class="af-node">
-        <span class="af-k">02 · CREATIVE</span>
-        <h5>创意官</h5>
-        <p>平台内容矩阵 / 脚本 / 标题 / 节奏</p>
-        <span class="af-arrow">›</span>
-      </div>
-      <div class="af-node">
-        <span class="af-k">03 · COMPLIANCE</span>
-        <h5>合规官</h5>
-        <p>风险扫描 / 替换文案 / 依据条款</p>
-        <span class="af-arrow">›</span>
-      </div>
-      <div class="af-node">
-        <span class="af-k">04 · EVALUATOR</span>
-        <h5>评估官</h5>
-        <p>五维评分 / A/B 预测 / 迭代动作</p>
-      </div>
-    </div>
-
-    <div class="prompt-grid" id="promptGrid"></div>
-
-    <div class="tech-row">
-      <div class="tech-cell">
-        <div class="tc-k">RUNTIME</div>
-        <div class="tc-v">纯前端 · 零依赖</div>
-        <p>单文件 HTML/CSS/JS，双击即可离线运行，适配答辩现场无网络环境。</p>
-      </div>
-      <div class="tech-cell">
-        <div class="tc-k">MODEL INTERFACE</div>
-        <div class="tc-v">OpenAI 兼容协议</div>
-        <p>可配置 Base URL / Key / Model，兼容 DeepSeek、通义、豆包等接口；失败自动降级本地引擎。</p>
-      </div>
-      <div class="tech-cell">
-        <div class="tc-k">GUARDRAILS</div>
-        <div class="tc-v">JSON 契约 + 规则校验</div>
-        <p>字段缺失或结构不符即拒绝入库；合规官同时跑规则库与模型判断，双保险。</p>
-      </div>
-      <div class="tech-cell">
-        <div class="tc-k">HUMAN IN LOOP</div>
-        <div class="tc-v">人工复核点 ×3</div>
-        <p>主张定稿、合规修正、投放前终审均由人确认，AI 只给建议不替代决策。</p>
-      </div>
-    </div>
-
-    <div class="llm-banner">
-      <div class="lb-txt">
-        <b>推理引擎状态：<span id="engineText">本地仿真引擎（离线可用）</span></b><br>
-        当前演示默认使用内置规则引擎，保证结果稳定；配置大模型接口后，四个智能体将按下方 Prompt 真实调用模型。
-        接口密钥仅保存在本机浏览器 localStorage，不会上传到任何第三方服务器。
-      </div>
-      <span class="conn-state" id="connState">未接入模型</span>
-      <button class="btn-tiny" id="openSettings2">配置大模型接口</button>
-    </div>
-  </div>
-</section>
-
-<!-- ================= ABOUT ================= -->
-<section class="sec alt" id="about">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div>
-        <div class="sec-kicker">DISCLOSURE / 作品说明</div>
-        <h2 class="sec-title">如实披露：<em>AI 做了什么，人做了什么</em></h2>
-      </div>
-      <p class="sec-desc">按大赛要求提交 AI 大模型应用说明：工具、环节、人机协作模式、伦理与合规，一页说清。</p>
-    </div>
-
-    <div class="doc-grid">
-      <div class="doc-card reveal">
-        <h3><span class="dc-idx">01</span>作品简介（提交版 · 200 字内）</h3>
-        <div class="dc-sub">可用于报名表“作品简介”栏，复制即用</div>
-        <div class="abstract-box" id="abstractBox">
-          齐鲁风物·AI传播工坊聚焦山东县域地标农产品传播的「首案决策」环节：把零散的产地事实，变成第一版可执行的传播方案。四个智能体接力——策略官定主张、创意官按抖音/小红书/视频号/大众网生成内容、合规官扫描广告法与地标风险、评估官五维评分。单文件前端，离线可交互，亦可接入大模型。开发与文案由Trae IDE智能体（DeepSeek-V4.1-Flash）辅助，策略取舍与合规终审由团队完成。
-          <span class="ab-count" id="abstractCount"></span>
-        </div>
-        <div class="download-row">
-          <button class="btn-tiny" id="copyAbstract">复制简介</button>
-          <button class="btn-tiny" id="exportDoc">导出 AI 应用说明（Markdown）</button>
-        </div>
-      </div>
-
-      <div class="doc-card reveal">
-        <h3><span class="dc-idx">02</span>AI 工具与使用环节</h3>
-        <div class="dc-sub">对应大赛“如实披露 AI 工具、使用环节与人机协作模式”要求</div>
-        <ul class="doc-list">
-          <li><span class="dl-k">工具</span><div><b>Trae IDE 智能体（底层模型 DeepSeek-V4.1-Flash）</b>：用于产品原型代码搭建、界面样式迭代、四智能体 Prompt 起草与文案初稿生成。</div></li>
-          <li><span class="dl-k">工具</span><div><b>运行时大模型接口（可选）</b>：OpenAI 兼容协议，支持 DeepSeek / 通义 / 豆包等；未配置时使用内置规则引擎，保证离线演示。</div></li>
-          <li><span class="dl-k">环节</span><div><b>策略与创意</b>：AI 负责候选主张、受众假设与多平台文案；团队负责事实核验、文化表述把关与最终定稿。</div></li>
-          <li><span class="dl-k">环节</span><div><b>合规与评估</b>：AI 给出风险点与评分；团队对照《广告法》《地理标志产品保护规定》逐条复核，并对评分口径负责。</div></li>
-          <li><span class="dl-k">未使用</span><div>未直接套用 AI 成品参赛；所有场景事实、受众假设、合规判断均经过人工重写与交叉验证。</div></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="doc-grid" style="margin-top:22px">
-      <div class="doc-card reveal">
-        <h3><span class="dc-idx">03</span>人机协作模式</h3>
-        <div class="dc-sub">Human-in-the-loop：AI 不替代决策，只压缩判断成本</div>
-        <table class="collab-table">
-          <thead><tr><th style="width:20%">环节</th><th style="width:40%">AI 承担</th><th>人承担</th></tr></thead>
-          <tbody>
-            <tr><td><b>场景定义</b></td><td>结构化补齐产区、节令与品类信息</td><td>确认事实、剔除夸大表述</td></tr>
-            <tr><td><b>策略生成</b></td><td>给出 3 类受众假设与候选主张</td><td>选择主张、判断文化适配性</td></tr>
-            <tr><td><b>内容生成</b></td><td>按平台语法产出脚本与标题</td><td>改写口播、核对产地细节</td></tr>
-            <tr><td><b>合规校验</b></td><td>标注风险词与替换建议</td><td>对照法规终审、决定是否发布</td></tr>
-            <tr><td><b>效果评估</b></td><td>五维评分与 A/B 差异预测</td><td>结合实际投放数据校准模型</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="doc-card reveal">
-        <h3><span class="dc-idx">04</span>AI 伦理与合规</h3>
-        <div class="dc-sub">主动回应大赛“倡导思考 AI 伦理相关议题”要求</div>
-        <div class="eth-grid">
-          <div class="eth"><h5><i></i>内容真实性</h5><p>不生成虚构产地数据与检测结论；涉及产量、糖度、认证等事实，须由企业提供凭证。</p></div>
-          <div class="eth"><h5><i></i>AI 标识</h5><p>AI 辅助生成的图文内容，按平台要求添加“AI 生成/辅助创作”标识，避免误导消费者。</p></div>
-          <div class="eth"><h5><i></i>文化尊重</h5><p>拒绝以刻板印象、审丑化方式消费地域文化；“土味”只作为风格选择，不作为嘲弄。</p></div>
-          <div class="eth"><h5><i></i>数据隐私</h5><p>不采集用户个人信息；接口密钥仅存本地浏览器，方案导出不含任何密钥与个人信息。</p></div>
-          <div class="eth"><h5><i></i>可追溯</h5><p>每条合规建议标注依据类别，评分附解释，避免“黑箱结论”影响发布决策。</p></div>
-          <div class="eth"><h5><i></i>责任边界</h5><p>工具定位为决策辅助，最终发布责任由品牌方与运营人员承担，界面明确提示。</p></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="doc-card reveal" style="margin-top:22px">
-      <h3><span class="dc-idx">05</span>落地路径与价值</h3>
-      <div class="dc-sub">从“校园作品”到“产业方案”：先做县域试点，再做媒体矩阵分发</div>
-      <p>
-        目标用户是县域合作社、县域电商服务站与县级融媒体中心。产品以“轻工具 + 轻咨询”方式落地：
-        先用一个产区、一个节令跑通闭环，用实际投放数据校准评分口径，再复制到同类地标品类。
-        对媒体端，工具可成为内容生产与合规审核的辅助工作台；对高校，可作为传播与营销课程的实训沙盘。
-      </p>
-      <div class="biz-grid">
-        <div class="biz-card">
-          <div class="bz-k">PHASE 01 · 0—3 个月</div>
-          <h5>单点验证</h5>
-          <p>选取 1 个地标产区 + 1 个节令，完成方案生成、人工终审与真实投放，回收数据校准评分权重。</p>
-          <span class="bz-tag">验证指标：方案采纳率</span>
-        </div>
-        <div class="biz-card">
-          <div class="bz-k">PHASE 02 · 3—9 个月</div>
-          <h5>品类复制</h5>
-          <p>沉淀品类知识库（产区事实、平台规则、合规词库），复制到苹果、蔬菜、茶、葱蒜等 4—6 个品类。</p>
-          <span class="bz-tag">验证指标：单方案制作时长</span>
-        </div>
-        <div class="biz-card">
-          <div class="bz-k">PHASE 03 · 9—18 个月</div>
-          <h5>矩阵分发</h5>
-          <p>与媒体矩阵、县域融媒合作，形成“工具 + 内容 + 投放”的组合服务，按次或订阅方式交付。</p>
-          <span class="bz-tag">验证指标：复购与续费率</span>
-        </div>
-      </div>
-      <div class="download-row" style="margin-top:18px">
-        <button class="btn btn-ghost btn-small" id="exportPlan">导出当前传播方案（Markdown）</button>
-        <button class="btn btn-ghost btn-small" id="printPage">打印 / 存为 PDF</button>
-        <button class="btn-tiny" id="resetAll">重置演示数据</button>
-      </div>
-    </div>
-
-    <div class="doc-card reveal" style="margin-top:22px">
-      <h3><span class="dc-idx">06</span>数据与口径说明</h3>
-      <div class="dc-sub">为避免误读，以下口径请与作品一同阅读</div>
-      <p>
-        本原型为工具逻辑验证，内置场景中的产区、节令与品类描述为公开常识性信息；
-        <b>受众占比、曝光预估、互动成本、A/B 点击率均为演示用结构化估算</b>，由参数与规则推导，不代表真实投放结果。
-        评分量表为团队自建的五维传播质量量表（文化契合、平台适配、记忆点、转化引导、合规安全），
-        权重可在接入真实数据后校准。合规提示仅作为辅助参考，不构成法律意见，发布前须由品牌方与法务复核。
-      </p>
-      <p style="font-size:11px;color:var(--ink-3);margin-top:10px">
-        参考依据类别：《中华人民共和国广告法》（极限词与虚假宣传）、《地理标志产品保护规定》、
-        平台社区规范与 AI 生成内容标识相关要求。具体条款以现行法规与平台规则为准。
-      </p>
-    </div>
-  </div>
-</section>
-
 <footer class="site-foot">
   <div class="wrap">
     <div class="foot-grid">
@@ -1678,16 +1392,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
           <div class="brand-txt"><b>齐鲁风物 · AI 传播工坊</b><span>Qilu Branding Agent · Prototype</span></div>
         </div>
         <div class="foot-note">
-          <b>参赛信息</b>：2026 山东省首届大学生 AI 大模型创新传播大赛 · 赛道三（AI 传播工具创新）。<br>
-          <b>作品形态</b>：可交互工具原型（单文件离线运行）+ AI 大模型应用说明。<br>
-          <b>AI 披露</b>：开发与文案环节使用 Trae IDE 智能体（DeepSeek-V4.1-Flash）辅助；策略取舍与合规终审由团队完成。
+          可交互工具原型 · 单文件离线运行 · 无需联网。<br>
+          开发与文案由 Trae IDE 智能体（DeepSeek-V4.1-Flash）辅助；策略取舍与合规终审由团队完成。<br>
+          适用边界：县域地标农产品的传播首案环节；不覆盖投流执行、履约与售后。
         </div>
       </div>
       <div class="foot-meta">
         <b>演示提示</b><br>
         推荐使用 Chrome / Edge 全屏演示<br>
         按 <span class="mono">F11</span> 进入全屏，滚轮逐段讲解<br>
-        方案数据可在“作品说明”页一键导出
+        方案可在「传播方案」页导出 Markdown<br>
+        视频分镜可在「视频分镜」页播放预演
       </div>
     </div>
   </div>
@@ -2511,7 +2226,8 @@ function updateEngineStatus(ok){
   const txt = on ? ('已接入 ' + (STATE.model.model || '大模型')) : '本地仿真引擎';
   $('#navStatusText').textContent = on ? ('大模型 · ' + (STATE.model.model || '已配置')) : '本地仿真引擎';
   $('#navStatus').classList.toggle('live', on);
-  $('#engineText').textContent = on ? ('已接入大模型（' + (STATE.model.model || '自定义模型') + '），失败自动回退') : '本地仿真引擎（离线可用）';
+  const et = $('#engineText');
+  if (et) et.textContent = on ? ('已接入大模型（' + (STATE.model.model || '自定义模型') + '），失败自动回退') : '本地仿真引擎（离线可用）';
   ['connState','connState2'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -3124,6 +2840,22 @@ function buildMarkdown(run){
     push('  ' + a.note);
   });
   push('');
+  push('## 八、人工干预记录');
+  push('');
+  const fixedIdx = STATE.fixed || [];
+  push('- 方案版本：v' + run.version + (run.version > 1 ? '（迭代生成）' : '（首版）'));
+  push('- 时间：生成 ' + new Date(run.createdAt).toLocaleString('zh-CN') + ' ｜ 导出 ' + new Date().toLocaleString('zh-CN'));
+  push('- 合规修正：已采纳 ' + fixedIdx.length + ' / ' + run.compliance.length + ' 条');
+  fixedIdx.forEach(i => {
+    const c = run.compliance[i];
+    if (c) push('  - [' + LEVEL_TEXT[c.level] + '] ' + c.type + '：' + c.fix);
+  });
+  if (!fixedIdx.length) push('  - 本版未采纳合规修正，保留原始建议待人工复核');
+  const abSel = run.ab[STATE.abPick];
+  push('- 标题决策：' + (abSel ? String.fromCharCode(65 + STATE.abPick) + '. ' + abSel.title + (abSel.rec ? '（系统推荐项）' : '（人工改选，非推荐项）') : '未选择'));
+  push('- 参数快照：预算 ' + run.params.budget + ' 万元 ｜ 周期 ' + run.params.cycle + ' 天 ｜ 目标 ' + GOALS[run.params.goal] + ' ｜ 平台 ' + run.platforms.map(p => p.name).join('、'));
+  push('- 留痕说明：上述采纳与选择均在页面内完成，导出时随方案固化，评审可现场复现同一操作路径。');
+  push('');
   push('---');
   push('说明：本方案由 AI 辅助生成，事实、合规与发布决策须由人工复核。');
   return L.join('\n');
@@ -3210,6 +2942,8 @@ function getAbstractText(){
    智能体 Prompt 展示
    ========================================================= */
 function renderPrompts(){
+  const pg = $('#promptGrid');
+  if (!pg) return;
   let sample;
   try { sample = buildRun(); } catch(e){ return; }
   const tip = [
@@ -3218,7 +2952,7 @@ function renderPrompts(){
     '读取全案文案，输出风险、替换建议与依据',
     '读取全案，输出五维评分、标题 CTR 预测与迭代动作'
   ];
-  $('#promptGrid').innerHTML = AGENTS.map((a, i) =>
+  pg.innerHTML = AGENTS.map((a, i) =>
     '<div class="prompt-card">' +
       '<div class="prompt-head" data-prompt="' + i + '">' +
         '<span class="ph-idx">0' + (i+1) + '</span><h4>' + a.name + ' · 系统提示词</h4>' +
@@ -4049,16 +3783,8 @@ function bind(){
     }
   });
 
-  // 导出 / 复制 / 打印 / 重置
-  $('#exportDoc').addEventListener('click', () => {
-    downloadFile('齐鲁风物AI传播工坊_AI大模型应用说明.md', buildDocMarkdown());
-    toast('AI 应用说明已导出（Markdown）');
-  });
+  // 导出 / 打印 / 重置
   $('#exportPlan').addEventListener('click', doExportPlan);
-  $('#copyAbstract').addEventListener('click', async () => {
-    const ok = await copyText(getAbstractText());
-    toast(ok ? '作品简介已复制，可直接粘贴到报名表' : '复制失败，请手动选择', !ok);
-  });
   $('#printPage').addEventListener('click', () => window.print());
   $('#resetAll').addEventListener('click', () => {
     if (!window.confirm('确定重置演示数据？当前方案与参数将清空（不影响已导出的文件）。')) return;
@@ -4084,7 +3810,8 @@ function bind(){
     modal.classList.add('show');
   };
   $('#openSettings').addEventListener('click', openModal);
-  $('#openSettings2').addEventListener('click', openModal);
+  const os2 = $('#openSettings2');
+  if (os2) os2.addEventListener('click', openModal);
   $$('[data-close-modal]').forEach(x => x.addEventListener('click', () => modal.classList.remove('show')));
   $('#saveApi').addEventListener('click', () => {
     const base = $('#apiBase').value.trim();
@@ -4128,7 +3855,7 @@ function bind(){
   });
 
   // 滚动导航
-  const secs = ['overview','workshop','report','architecture','about'];
+  const secs = ['overview','scenes','workshop','report','videoforge'];
   let ticking = false;
   window.addEventListener('scroll', () => {
     if (ticking) return;
